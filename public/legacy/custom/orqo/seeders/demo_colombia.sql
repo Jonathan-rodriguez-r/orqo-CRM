@@ -30,14 +30,13 @@ ON DUPLICATE KEY UPDATE
 INSERT INTO contacts (
   id, date_entered, date_modified, modified_user_id, created_by,
   description, deleted, assigned_user_id, first_name, last_name,
-  title, department, phone_work, account_id, primary_address_city,
-  primary_address_country
+  title, department, phone_work, primary_address_city, primary_address_country
 ) VALUES
-('orqocont-0001-4000-8000-000000000001', @now, @now, @admin_id, @admin_id, 'Contacto demo para arquitectura empresarial y canales digitales.', 0, @admin_id, 'Laura', 'Restrepo', 'Directora de Arquitectura Empresarial', 'Tecnologia', '+57 604 510 9010', 'orqoacct-0001-4000-8000-000000000001', 'Medellin', 'Colombia'),
-('orqocont-0001-4000-8000-000000000002', @now, @now, @admin_id, @admin_id, 'Contacto demo para integracion core y gobierno API.', 0, @admin_id, 'Andres', 'Cortes', 'Gerente de Integracion Core', 'Arquitectura', '+57 601 382 0042', 'orqoacct-0001-4000-8000-000000000002', 'Bogota', 'Colombia'),
-('orqocont-0001-4000-8000-000000000003', @now, @now, @admin_id, @admin_id, 'Contacto demo para IA y canales digitales.', 0, @admin_id, 'Camila', 'Rojas', 'Lider IA y Canales Digitales', 'Innovacion', '+57 601 338 3841', 'orqoacct-0001-4000-8000-000000000003', 'Bogota', 'Colombia'),
-('orqocont-0001-4000-8000-000000000004', @now, @now, @admin_id, @admin_id, 'Contacto demo para operaciones BSS.', 0, @admin_id, 'Felipe', 'Arango', 'Jefe de Operaciones BSS', 'Operaciones TI', '+57 601 742 9733', 'orqoacct-0001-4000-8000-000000000004', 'Bogota', 'Colombia'),
-('orqocont-0001-4000-8000-000000000005', @now, @now, @admin_id, @admin_id, 'Contacto demo para PQRS digital.', 0, @admin_id, 'Natalia', 'Mejia', 'Responsable PQRS Digital', 'Experiencia Cliente', '+57 601 705 0198', 'orqoacct-0001-4000-8000-000000000005', 'Bogota', 'Colombia')
+('orqocont-0001-4000-8000-000000000001', @now, @now, @admin_id, @admin_id, 'Contacto demo para arquitectura empresarial y canales digitales.', 0, @admin_id, 'Laura', 'Restrepo', 'Directora de Arquitectura Empresarial', 'Tecnologia', '+57 604 510 9010', 'Medellin', 'Colombia'),
+('orqocont-0001-4000-8000-000000000002', @now, @now, @admin_id, @admin_id, 'Contacto demo para integracion core y gobierno API.', 0, @admin_id, 'Andres', 'Cortes', 'Gerente de Integracion Core', 'Arquitectura', '+57 601 382 0042', 'Bogota', 'Colombia'),
+('orqocont-0001-4000-8000-000000000003', @now, @now, @admin_id, @admin_id, 'Contacto demo para IA y canales digitales.', 0, @admin_id, 'Camila', 'Rojas', 'Lider IA y Canales Digitales', 'Innovacion', '+57 601 338 3841', 'Bogota', 'Colombia'),
+('orqocont-0001-4000-8000-000000000004', @now, @now, @admin_id, @admin_id, 'Contacto demo para operaciones BSS.', 0, @admin_id, 'Felipe', 'Arango', 'Jefe de Operaciones BSS', 'Operaciones TI', '+57 601 742 9733', 'Bogota', 'Colombia'),
+('orqocont-0001-4000-8000-000000000005', @now, @now, @admin_id, @admin_id, 'Contacto demo para PQRS digital.', 0, @admin_id, 'Natalia', 'Mejia', 'Responsable PQRS Digital', 'Experiencia Cliente', '+57 601 705 0198', 'Bogota', 'Colombia')
 ON DUPLICATE KEY UPDATE
   date_modified = VALUES(date_modified),
   modified_user_id = VALUES(modified_user_id),
@@ -47,7 +46,18 @@ ON DUPLICATE KEY UPDATE
   title = VALUES(title),
   department = VALUES(department),
   phone_work = VALUES(phone_work),
+  deleted = 0;
+
+INSERT INTO accounts_contacts (id, contact_id, account_id, date_modified, deleted) VALUES
+('orqocrel-0001-4000-8000-000000000001', 'orqocont-0001-4000-8000-000000000001', 'orqoacct-0001-4000-8000-000000000001', @now, 0),
+('orqocrel-0001-4000-8000-000000000002', 'orqocont-0001-4000-8000-000000000002', 'orqoacct-0001-4000-8000-000000000002', @now, 0),
+('orqocrel-0001-4000-8000-000000000003', 'orqocont-0001-4000-8000-000000000003', 'orqoacct-0001-4000-8000-000000000003', @now, 0),
+('orqocrel-0001-4000-8000-000000000004', 'orqocont-0001-4000-8000-000000000004', 'orqoacct-0001-4000-8000-000000000004', @now, 0),
+('orqocrel-0001-4000-8000-000000000005', 'orqocont-0001-4000-8000-000000000005', 'orqoacct-0001-4000-8000-000000000005', @now, 0)
+ON DUPLICATE KEY UPDATE
+  contact_id = VALUES(contact_id),
   account_id = VALUES(account_id),
+  date_modified = VALUES(date_modified),
   deleted = 0;
 
 INSERT INTO leads (
