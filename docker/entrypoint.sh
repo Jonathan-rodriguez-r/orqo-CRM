@@ -25,6 +25,23 @@ log() {
   printf '[orqo-entrypoint] %s\n' "$*"
 }
 
+tail_application_logs() {
+  log "Tailing SuiteCRM logs to container stdout."
+  touch \
+    logs/prod/prod.log \
+    logs/dev/dev.log \
+    public/legacy/suitecrm.log \
+    public/legacy/fatal.log \
+    2>/dev/null || true
+
+  tail -n 0 -F \
+    logs/prod/prod.log \
+    logs/dev/dev.log \
+    public/legacy/suitecrm.log \
+    public/legacy/fatal.log \
+    2>/dev/null &
+}
+
 configure_runtime() {
   if [[ -n "${PHP_TIMEZONE:-}" ]]; then
     echo "date.timezone=${PHP_TIMEZONE}" > /usr/local/etc/php/conf.d/99-orqo-timezone.ini
@@ -364,6 +381,7 @@ main() {
   install_suitecrm_if_needed "$@"
   reset_admin_password_if_requested
   ensure_permissions
+  tail_application_logs
 
   exec "$@"
 }

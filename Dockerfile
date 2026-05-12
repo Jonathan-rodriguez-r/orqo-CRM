@@ -64,6 +64,9 @@ RUN apt-get update \
         echo 'opcache.max_accelerated_files=20000'; \
         echo 'opcache.validate_timestamps=0'; \
         echo 'opcache.save_comments=1'; \
+        echo 'log_errors=1'; \
+        echo 'display_errors=0'; \
+        echo 'error_log=/proc/self/fd/2'; \
     } > /usr/local/etc/php/conf.d/orqo-production.ini \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
