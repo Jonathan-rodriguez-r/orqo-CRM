@@ -1,14 +1,5 @@
 <?php
 
-$app_strings['LBL_BROWSER_TITLE'] = 'Orqo CRM';
-$app_strings['LBL_SUITECRM'] = 'Orqo CRM';
-$app_strings['LBL_SUITECRM_VERSION'] = 'Orqo CRM';
-$app_strings['LBL_SUITECRM_LOGO'] = 'Orqo CRM';
-$app_strings['LBL_HOME_PAGE_TITLE'] = 'Orqo CRM';
-$app_strings['LBL_SEARCH'] = 'Buscar en Orqo CRM...';
-$app_strings['LBL_GLOBAL_SEARCH'] = 'Buscar en Orqo CRM';
-$app_strings['LBL_ABOUT'] = 'Acerca de Orqo CRM';
-
 // Orqo CRM: UI-only Spanish labels. English language files are intentionally untouched.
 $app_strings['LBL_SAVE_BUTTON_LABEL'] = 'Guardar';
 $app_strings['LBL_SAVE_BUTTON_TITLE'] = 'Guardar';
