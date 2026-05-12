@@ -826,7 +826,41 @@ EOF
     });
   }
 
+  function isCoralColor(bg) {
+    var m = bg && bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!m) { return false; }
+    var r = +m[1], g = +m[2], b = +m[3];
+    return r > 170 && g < 130 && b < 100;
+  }
+
+  function applyGreen(el) {
+    el.style.setProperty('background-color', '#1A8A55', 'important');
+    el.style.setProperty('color', '#ffffff', 'important');
+    el.style.setProperty('border-color', '#176647', 'important');
+  }
+
+  function patchActiveNavItem() {
+    var sel = [
+      '.navbar .active > a', '.navbar li.active a',
+      '.navbar-nav .active .nav-link', '.navbar-nav .active a',
+      '.nav-item.active .nav-link', '.nav-item.active a',
+      '.navbar [aria-current="page"]'
+    ].join(',');
+    document.querySelectorAll(sel).forEach(function (el) {
+      el.style.setProperty('background-color', '#F5F5F2', 'important');
+      el.style.setProperty('color', '#2E4038', 'important');
+      el.style.setProperty('border', 'none', 'important');
+      el.style.setProperty('box-shadow', 'none', 'important');
+      el.style.setProperty('max-height', '46px', 'important');
+      el.style.setProperty('overflow', 'hidden', 'important');
+    });
+    document.querySelectorAll('.navbar .active > a *, .navbar-nav .active a *').forEach(function (el) {
+      el.style.setProperty('color', '#2E4038', 'important');
+    });
+  }
+
   function patchNotificationBanner() {
+    /* 1 — text-based: look for "Nota:" / "Note:" text nodes */
     var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     var node;
     while ((node = walker.nextNode())) {
@@ -836,15 +870,25 @@ EOF
       for (var i = 0; i < 8 && el && el !== document.body; i++) {
         var bg = window.getComputedStyle(el).backgroundColor;
         if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') {
-          el.style.setProperty('background-color', '#1A8A55', 'important');
-          el.style.setProperty('color', '#ffffff', 'important');
-          el.style.setProperty('border-color', '#176647', 'important');
+          applyGreen(el);
           el.style.setProperty('border-left', 'none', 'important');
           break;
         }
         el = el.parentElement;
       }
     }
+    /* 2 — color-based: find any coral element outside the navbar */
+    var alertSel = [
+      '.alert', '[class*="alert"]', '[class*="notification"]',
+      '[class*="system-message"]', 'scrm-alert', 'app-alert',
+      '#notifyDiv', '.errorOccurred', '#notify_messages', '.notify_message'
+    ].join(',');
+    document.querySelectorAll(alertSel).forEach(function (el) {
+      if (el.closest && el.closest('.navbar')) { return; }
+      if (isCoralColor(window.getComputedStyle(el).backgroundColor)) {
+        applyGreen(el);
+      }
+    });
   }
 
   function watchHead() {
@@ -1041,6 +1085,7 @@ EOF
     patchLoaders();
     replaceAboutPage();
     patchDropdownHover();
+    patchActiveNavItem();
     patchNotificationBanner();
   }
 
