@@ -194,10 +194,10 @@ body .navbar-header,
 body .navbar .logo,
 body .navbar img[src*="company_logo"],
 body header img[src*="company_logo"] {
-  height: 34px !important;
-  max-height: 34px !important;
+  height: 36px !important;
+  max-height: 36px !important;
   width: auto !important;
-  max-width: 150px !important;
+  max-width: 180px !important;
   object-fit: contain !important;
   margin: 6px 12px !important;
   position: static !important;
@@ -424,8 +424,8 @@ write_legacy_branding_config() {
 \$sugar_config['default_decimal_seperator'] = ',';
 \$sugar_config['company_logo'] = 'company_logo.png';
 \$sugar_config['company_logo_url'] = '';
-\$sugar_config['company_logo_width'] = '360';
-\$sugar_config['company_logo_height'] = '96';
+\$sugar_config['company_logo_width'] = '720';
+\$sugar_config['company_logo_height'] = '150';
 EOF
 
   touch public/legacy/config_override.php
