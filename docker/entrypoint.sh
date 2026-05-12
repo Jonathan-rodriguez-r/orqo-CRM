@@ -6,6 +6,7 @@ WEB_USER="${APACHE_RUN_USER:-www-data}"
 WEB_GROUP="${APACHE_RUN_GROUP:-www-data}"
 PORT="${PORT:-80}"
 PERSIST_ROOT="${PERSIST_ROOT:-}"
+export APP_RUNTIME_OPTIONS="${APP_RUNTIME_OPTIONS:-{\"project_dir\":\"${APP_DIR}\"}}"
 
 SUITECRM_VERSION="${SUITECRM_VERSION:-8.8.1}"
 SUITECRM_DOWNLOAD_URL="${SUITECRM_DOWNLOAD_URL:-https://sourceforge.net/projects/suitecrm/files/SuiteCRM-${SUITECRM_VERSION}.zip/download}"
@@ -200,17 +201,33 @@ database_has_suitecrm() {
     2>/dev/null | grep -qx '1'
 }
 
-write_env_local() {
-  if [[ -f .env.local ]]; then
+set_env_value() {
+  local key="$1"
+  local value="$2"
+  local file="${3:-.env.local}"
+
+  touch "${file}"
+  if grep -q "^${key}=" "${file}"; then
+    sed -i "s|^${key}=.*|${key}=${value}|" "${file}"
+  else
+    printf '%s=%s\n' "${key}" "${value}" >> "${file}"
+  fi
+}
+
+write_runtime_env() {
+  set_env_value APP_ENV "${APP_ENV:-prod}"
+  set_env_value APP_DEBUG "${APP_DEBUG:-0}"
+  set_env_value DATABASE_URL "\"mysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?serverVersion=mariadb-10.11&charset=utf8mb4\""
+  chmod 660 .env.local
+}
+
+cleanup_partial_install_files() {
+  if database_has_suitecrm; then
     return
   fi
 
-  cat > .env.local <<EOF
-APP_ENV=${APP_ENV:-prod}
-APP_DEBUG=${APP_DEBUG:-0}
-DATABASE_URL="mysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?serverVersion=mariadb-10.11"
-EOF
-  chmod 660 .env.local
+  log "Cleaning partial installer files before retry."
+  rm -f .env.local .env.local.php config_si.php public/legacy/config_si.php
 }
 
 install_suitecrm_if_needed() {
@@ -220,10 +237,10 @@ install_suitecrm_if_needed() {
   }
 
   wait_for_database
-  write_env_local
 
   if database_has_suitecrm; then
     log "SuiteCRM database already contains users table; skipping unattended install."
+    write_runtime_env
     return
   fi
 
@@ -232,16 +249,9 @@ install_suitecrm_if_needed() {
     return
   fi
 
+  cleanup_partial_install_files
   log "Running unattended SuiteCRM install."
-  local apache_pid=""
-  if [[ "${1:-}" == "apache2-foreground" ]]; then
-    log "Starting Apache temporarily for SuiteCRM route checks."
-    apache2-foreground &
-    apache_pid="$!"
-    sleep 5
-  fi
-
-  php bin/console suitecrm:app:install \
+  APP_ENV=dev APP_DEBUG=0 php bin/console suitecrm:app:install \
     -u "${ADMIN_USER}" \
     -p "${ADMIN_PASSWORD}" \
     -U "${DB_USER}" \
@@ -251,13 +261,10 @@ install_suitecrm_if_needed() {
     -N "${DB_NAME}" \
     -S "${SITE_URL}" \
     -d "${DEMO_DATA}" \
+    -W "true" \
     --no-interaction
 
-  if [[ -n "${apache_pid}" ]]; then
-    log "Stopping temporary Apache after installer."
-    apache2ctl -k graceful-stop >/dev/null 2>&1 || true
-    wait "${apache_pid}" 2>/dev/null || true
-  fi
+  write_runtime_env
 }
 
 main() {

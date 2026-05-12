@@ -6,6 +6,7 @@ ENV APP_DIR=/var/www/html \
     APP_ENV=prod \
     APP_DEBUG=0 \
     PHP_TIMEZONE=America/Bogota \
+    APP_RUNTIME_OPTIONS="{\"project_dir\":\"/var/www/html\"}" \
     SUITECRM_VERSION=8.8.1 \
     APACHE_DOCUMENT_ROOT=/var/www/html/public
 
@@ -38,9 +39,11 @@ RUN apt-get update \
         mysqli \
         opcache \
         pdo_mysql \
+        soap \
         xml \
         zip \
-    && a2enmod rewrite headers expires remoteip \
+    && a2dismod -f mpm_event mpm_worker \
+    && a2enmod mpm_prefork rewrite headers expires remoteip \
     && sed -ri 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf /etc/apache2/apache2.conf \
     && printf '%s\n' \
         '<Directory /var/www/html/public>' \
