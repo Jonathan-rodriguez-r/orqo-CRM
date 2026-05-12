@@ -30,6 +30,9 @@ configure_runtime() {
     echo "date.timezone=${PHP_TIMEZONE}" > /usr/local/etc/php/conf.d/99-orqo-timezone.ini
   fi
 
+  rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.*
+  a2enmod mpm_prefork >/dev/null 2>&1 || true
+
   sed -ri "s/^Listen .*/Listen ${HTTP_PORT}/" /etc/apache2/ports.conf
   sed -ri "s/<VirtualHost \*:.*>/<VirtualHost *:${HTTP_PORT}>/" /etc/apache2/sites-available/000-default.conf
 }
