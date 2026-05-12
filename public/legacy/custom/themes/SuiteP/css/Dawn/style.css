@@ -1,0 +1,153 @@
+/*
+ * Orqo CRM — SuiteP theme color overrides (Dawn color scheme).
+ * SuiteCRM loads this file AFTER themes/SuiteP/css/Dawn/style.css.
+ * Reference: community.suitecrm.com/t/cambiar-colores-custom-theme/48964
+ */
+:root {
+  --orqo-ink: #2E4038;
+  --orqo-green: #1A8A55;
+  --orqo-green-dark: #176647;
+  --orqo-surface: #f7f3ec;
+}
+
+/* ── Navbar / toolbar ── */
+.navbar,
+.navbar-inverse,
+.navbar-default,
+#toolbar,
+#topnav {
+  background-color: #2E4038 !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  overflow: visible !important;
+}
+
+.navbar a,
+.navbar .dropdown-toggle,
+.navbar-inverse .navbar-nav > li > a,
+.navbar-default .navbar-nav > li > a {
+  color: #ffffff !important;
+}
+
+/* ── Active / selected item ── */
+.navbar .active > a,
+.navbar .active > a:hover,
+.navbar .active > a:focus,
+.navbar-nav > .active > a,
+.navbar-nav > .active > a:hover,
+.navbar-nav > .active > a:focus,
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus {
+  background-color: #F5F5F2 !important;
+  color: #2E4038 !important;
+  border: none !important;
+  box-shadow: none !important;
+  max-height: 46px !important;
+  overflow: hidden !important;
+}
+
+.navbar .active > a *,
+.navbar-nav > .active > a * {
+  color: #2E4038 !important;
+}
+
+/* ── Open dropdown trigger ── */
+.navbar .open > a,
+.navbar .open > a:hover,
+.navbar .open > a:focus,
+.navbar-default .navbar-nav .open > a,
+.navbar-default .navbar-nav .open > a:hover {
+  background-color: #1A8A55 !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* ── Dropdown panel ── */
+.navbar .dropdown-menu,
+.navbar-default .dropdown-menu,
+.navbar-inverse .dropdown-menu,
+.navbar-default .navbar-nav .open .dropdown-menu {
+  background-color: #2E4038 !important;
+  border: none !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* ── Dropdown links ── */
+.navbar .dropdown-menu > li > a,
+.navbar-default .dropdown-menu > li > a,
+.navbar-default .navbar-nav .open .dropdown-menu > li > a {
+  color: #e8f0ec !important;
+}
+
+/* ── Dropdown hover ── */
+.navbar .dropdown-menu > li > a:hover,
+.navbar .dropdown-menu > li > a:focus,
+.navbar-default .dropdown-menu > li > a:hover,
+.navbar-default .dropdown-menu > li > a:focus,
+.navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
+.navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+  background-color: #1A8A55 !important;
+  color: #ffffff !important;
+}
+
+/* ── Buttons ── */
+.btn-primary,
+.btn-default,
+.button.primary,
+input[type="submit"] {
+  background-color: #1A8A55 !important;
+  border-color: #1A8A55 !important;
+  color: #ffffff !important;
+}
+
+.btn-primary:hover,
+.btn-default:hover,
+input[type="submit"]:hover {
+  background-color: #176647 !important;
+  border-color: #176647 !important;
+}
+
+/* ── Alert / notification banner ── */
+.alert,
+.alert-warning,
+.alert-danger,
+.alert-error,
+.alert-info,
+.errorOccurred,
+#notify_messages,
+.notify_message {
+  background-color: #1A8A55 !important;
+  border-color: #176647 !important;
+  color: #ffffff !important;
+}
+
+.alert a,
+.alert-warning a,
+.notify_message a,
+.errorOccurred a {
+  color: #d4f5e4 !important;
+  text-decoration: underline !important;
+}
+
+/* ── Module titles / headings ── */
+.moduleTitle h2,
+.detail-view h4,
+.edit-view h4,
+h2.moduleTitle {
+  color: #2E4038 !important;
+}
+
+/* ── Links ── */
+a:hover,
+a:focus {
+  color: #1A8A55 !important;
+}
+
+/* ── Footer ── */
+footer,
+.footer,
+.login-footer {
+  color: #5f6470 !important;
+}

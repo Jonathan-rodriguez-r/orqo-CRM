@@ -1103,6 +1103,37 @@ EOF
   fi
 }
 
+patch_legacy_theme_colors() {
+  log "Patching SuiteP/suite8 theme source colors."
+
+  local theme_dirs=(
+    "public/legacy/themes/SuiteP"
+    "public/legacy/themes/suite8"
+  )
+
+  for theme_dir in "${theme_dirs[@]}"; do
+    [[ -d "${theme_dir}" ]] || continue
+
+    find "${theme_dir}" -type f \( -name "*.css" -o -name "*.scss" \) | while read -r f; do
+      # Replace common SuiteP coral/orange action colors with Orqo green
+      sed -i \
+        -e 's/#[Ee][Cc][5][Bb][4][Ff]/#1A8A55/g' \
+        -e 's/#[Dd][9][5][3][4][Ff]/#1A8A55/g' \
+        -e 's/#[Cc][9][3][0][2][Cc]/#176647/g' \
+        -e 's/#[Ff][5][5][4][3][Dd]/#1A8A55/g' \
+        -e 's/#[Ee][85][56][2-9][0-9a-fA-F]/#1A8A55/g' \
+        -e 's/#[Ff][3-9][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]/#1A8A55/g' \
+        "${f}" 2>/dev/null || true
+    done
+  done
+
+  # Clear compiled theme cache so SuiteCRM regenerates from patched sources
+  rm -rf \
+    public/legacy/cache/themes/SuiteP \
+    public/legacy/cache/themes/suite8 \
+    2>/dev/null || true
+}
+
 refresh_orqo_ui_cache() {
   log "Refreshing Orqo CRM UI language and branding cache."
 
@@ -1578,6 +1609,7 @@ main() {
   install_spanish_language_pack_if_needed
   write_legacy_branding_config
   repair_core_branding_side_effects
+  patch_legacy_theme_colors
   replace_visible_suitecrm_branding
   install_orqo_runtime_branding_patch
   refresh_orqo_ui_cache
