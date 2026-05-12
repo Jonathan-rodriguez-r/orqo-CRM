@@ -1276,6 +1276,142 @@ EOF
     buttonBar.parentNode.insertBefore(bar, buttonBar);
   }
 
+  function patchQuoteDetailView() {
+    var search = window.location.search;
+    if (search.indexOf('module=AOS_Quotes') === -1) { return; }
+    if (search.indexOf('action=DetailView') === -1
+        && search.indexOf('action=OrqoPublish') === -1) { return; }
+
+    var recordMatch = search.match(/[?&]record=([^&]+)/);
+    if (!recordMatch) { return; }
+
+    var recordId = decodeURIComponent(recordMatch[1]);
+    var publishHref = 'index.php?module=AOS_Quotes&action=OrqoPublish&record=' + encodeURIComponent(recordId);
+    var buttonBar = document.querySelector(
+      '.detail-buttons, .action_button_bar, .buttons-column, .actionsContainer, ' +
+      '#buttonRow, .buttons-row, .detail-view-action-buttons'
+    );
+    if (!buttonBar) { return; }
+
+    function findActionsDropdown() {
+      var toggles = document.querySelectorAll(
+        '.dropdown-toggle, button, a, input[type="button"], input[type="submit"]'
+      );
+      for (var i = 0; i < toggles.length; i++) {
+        var t = toggles[i];
+        var label = ((t.textContent || t.value || '') + '').replace(/\s+/g, ' ').trim().toLowerCase();
+        if (label !== 'acciones' && label !== 'actions') { continue; }
+
+        var wrapper = t.closest && t.closest('.btn-group, .dropdown, .actionmenulinks, .actionsContainer, .detail-buttons, .action_button_bar');
+        var menu = wrapper ? wrapper.querySelector('.dropdown-menu') : null;
+        if (menu) { return menu; }
+
+        var next = t.nextElementSibling;
+        if (next && next.classList && next.classList.contains('dropdown-menu')) { return next; }
+      }
+      return buttonBar.querySelector('.dropdown-menu') ||
+        document.querySelector('.detail-buttons .dropdown-menu, .actionsContainer .dropdown-menu, .action_button_bar .dropdown-menu');
+    }
+
+    function ensurePublishAction() {
+      if (document.getElementById('orqo-publish-html-action')) { return true; }
+      var menu = findActionsDropdown();
+      if (!menu) { return false; }
+
+      var divider = document.createElement('li');
+      divider.className = 'divider';
+      divider.setAttribute('role', 'separator');
+      divider.setAttribute('aria-hidden', 'true');
+
+      var item = document.createElement('li');
+      item.id = 'orqo-publish-html-action';
+      item.setAttribute('role', 'presentation');
+
+      var link = document.createElement('a');
+      link.href = publishHref;
+      link.setAttribute('role', 'menuitem');
+      link.textContent = 'Publicar en HTML';
+      link.style.cssText = 'cursor:pointer;';
+
+      item.appendChild(link);
+      menu.appendChild(divider);
+      menu.appendChild(item);
+      return true;
+    }
+
+    function injectFallbackButton() {
+      if (document.getElementById('orqo-publish-html-fallback')) { return; }
+      var fallback = document.createElement('a');
+      fallback.id = 'orqo-publish-html-fallback';
+      fallback.href = publishHref;
+      fallback.textContent = 'Publicar en HTML';
+      fallback.style.cssText = [
+        'display:inline-block', 'padding:0.45rem 1.1rem',
+        'margin:0.35rem 0.5rem 0.35rem 0',
+        'background:#1A8A55', 'color:#ffffff',
+        'border-radius:4px', 'font-size:0.88rem', 'font-weight:600',
+        'text-decoration:none', 'cursor:pointer'
+      ].join(';');
+      fallback.onmouseover = function () { this.style.background = '#176647'; };
+      fallback.onmouseout = function () { this.style.background = '#1A8A55'; };
+      buttonBar.appendChild(fallback);
+    }
+
+    if (!ensurePublishAction()) {
+      injectFallbackButton();
+    }
+
+    var justPublished = search.indexOf('orqo_published=1') !== -1;
+    var publicUrl = '';
+    if (justPublished) {
+      var urlMatch = search.match(/[?&]orqo_url=([^&]+)/);
+      if (urlMatch) { publicUrl = decodeURIComponent(urlMatch[1]); }
+    }
+    if (!justPublished || !publicUrl || document.getElementById('orqo-publish-result-bar')) { return; }
+
+    var bar = document.createElement('div');
+    bar.id = 'orqo-publish-result-bar';
+    bar.style.cssText = [
+      'display:flex', 'align-items:center', 'flex-wrap:wrap', 'gap:0.75rem',
+      'padding:0.75rem 1rem', 'margin:0.5rem 0',
+      'background:#f7f3ec', 'border:1px solid #d4e8db',
+      'border-radius:6px', 'font-family:inherit'
+    ].join(';');
+
+    var label = document.createElement('span');
+    label.textContent = 'Enlace HTML para el cliente:';
+    label.style.cssText = 'font-size:0.82rem;color:#2E4038;font-weight:600;white-space:nowrap;';
+
+    var link = document.createElement('a');
+    link.href = publicUrl;
+    link.target = '_blank';
+    link.textContent = publicUrl;
+    link.style.cssText = [
+      'font-size:0.82rem', 'color:#1A8A55',
+      'overflow:hidden', 'text-overflow:ellipsis', 'white-space:nowrap',
+      'max-width:480px', 'display:inline-block'
+    ].join(';');
+
+    var copyBtn = document.createElement('button');
+    copyBtn.textContent = 'Copiar';
+    copyBtn.style.cssText = [
+      'padding:0.2rem 0.6rem', 'font-size:0.78rem',
+      'background:#2E4038', 'color:#fff',
+      'border:none', 'border-radius:3px', 'cursor:pointer'
+    ].join(';');
+    copyBtn.onclick = function () {
+      navigator.clipboard && navigator.clipboard.writeText(publicUrl).then(function () {
+        copyBtn.textContent = 'Copiado';
+        setTimeout(function () { copyBtn.textContent = 'Copiar'; }, 2000);
+      });
+    };
+
+    bar.appendChild(label);
+    bar.appendChild(link);
+    bar.appendChild(copyBtn);
+    buttonBar.parentNode.insertBefore(bar, buttonBar);
+  }
+
   function replaceTextNode(node) {
     var value = node.nodeValue;
     var trimmed = value.trim();

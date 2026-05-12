@@ -59,11 +59,19 @@ $lineItems = [];
 if (!empty($quote->aos_products_quotes)) {
     $quote->aos_products_quotes->fetch();
     foreach ($quote->aos_products_quotes->getBeans() as $item) {
+        $quantity = $item->product_qty ?? $item->quantity ?? 0;
+        $unitPrice = $item->product_unit_price ?? $item->unit_price ?? 0;
+        $totalPrice = $item->product_total_price ?? $item->total_price ?? 0;
         $lineItems[] = [
             'name'        => $item->name,
-            'quantity'    => (float) $item->quantity,
-            'unit_price'  => (float) $item->unit_price,
-            'total_price' => (float) $item->total_price,
+            'part_number' => $item->part_number ?? $item->product_part_number ?? '',
+            'description' => $item->description ?? $item->product_description ?? '',
+            'quantity'    => (float) $quantity,
+            'list_price'  => (float) ($item->product_list_price ?? $item->list_price ?? $unitPrice),
+            'discount'    => (float) ($item->product_discount ?? 0),
+            'unit_price'  => (float) $unitPrice,
+            'vat'         => $item->vat ?? '',
+            'total_price' => (float) $totalPrice,
         ];
     }
 }
@@ -86,6 +94,120 @@ $siteUrl = rtrim(
     '/'
 );
 $orqoLogo = $siteUrl . '/legacy/custom/themes/suite8/images/company_logo.png';
+
+function orqo_quote_public_escape($value)
+{
+    return htmlspecialchars((string) ($value ?? ''), ENT_QUOTES, 'UTF-8');
+}
+
+function orqo_quote_public_money($value, $currency)
+{
+    if ($value === null || $value === '') {
+        return '';
+    }
+
+    return $currency . ' ' . number_format((float) $value, 2, ',', '.');
+}
+
+function orqo_quote_public_pdf_template($db)
+{
+    try {
+        $row = $db->fetchOne(
+            "SELECT id, name, description, pdfheader, pdffooter
+               FROM aos_pdf_templates
+              WHERE deleted = 0
+                AND type IN ('AOS_Quotes', 'Quotes')
+              ORDER BY date_modified DESC
+              LIMIT 1"
+        );
+    } catch (Throwable $e) {
+        return '';
+    }
+
+    if (empty($row) || empty($row['description'])) {
+        return '';
+    }
+
+    return ($row['pdfheader'] ?? '') . $row['description'] . ($row['pdffooter'] ?? '');
+}
+
+function orqo_quote_public_replace_product_rows($html, array $lineItems, $currency)
+{
+    return preg_replace_callback('/<tr\b[^>]*>.*?\$aos_products_quotes_.*?<\/tr>/is', function ($match) use ($lineItems, $currency) {
+        if (empty($lineItems)) {
+            return '';
+        }
+
+        $rows = '';
+        foreach ($lineItems as $item) {
+            $rows .= strtr($match[0], [
+                '$aos_products_quotes_product_qty' => orqo_quote_public_escape($item['quantity']),
+                '$aos_products_quotes_name' => orqo_quote_public_escape($item['name']),
+                '$aos_products_quotes_part_number' => orqo_quote_public_escape($item['part_number']),
+                '$aos_products_description' => orqo_quote_public_escape($item['description']),
+                '$aos_products_quotes_product_list_price' => orqo_quote_public_money($item['list_price'], $currency),
+                '$aos_products_quotes_product_discount' => orqo_quote_public_money($item['discount'], $currency),
+                '$aos_products_quotes_product_unit_price' => orqo_quote_public_money($item['unit_price'], $currency),
+                '$aos_products_quotes_vat' => orqo_quote_public_escape($item['vat']),
+                '$aos_products_quotes_product_total_price' => orqo_quote_public_money($item['total_price'], $currency),
+            ]);
+        }
+
+        return $rows;
+    }, $html);
+}
+
+function orqo_quote_public_render_pdf_template($templateHtml, $quote, array $lineItems, $currency, $orqoLogo)
+{
+    $templateHtml = orqo_quote_public_replace_product_rows($templateHtml, $lineItems, $currency);
+    $templateHtml = preg_replace('/<tr\b[^>]*>.*?\$aos_services_quotes_.*?<\/tr>/is', '', $templateHtml);
+
+    $templateHtml = strtr($templateHtml, [
+        '$aos_quotes_name' => orqo_quote_public_escape($quote->name ?? ''),
+        '$aos_quotes_number' => orqo_quote_public_escape($quote->number ?? ''),
+        '$aos_quotes_date_entered' => orqo_quote_public_escape($quote->date_entered ?? ''),
+        '$aos_quotes_expiration' => orqo_quote_public_escape($quote->expiration ?? ''),
+        '$aos_quotes_term' => orqo_quote_public_escape($quote->term ?? ''),
+        '$aos_quotes_modified_by_name' => orqo_quote_public_escape($quote->modified_by_name ?? $quote->assigned_user_name ?? ''),
+        '$aos_quotes_billing_account' => orqo_quote_public_escape($quote->billing_account ?? $quote->billing_account_name ?? ''),
+        '$aos_quotes_billing_address_street' => orqo_quote_public_escape($quote->billing_address_street ?? ''),
+        '$aos_quotes_billing_address_city' => orqo_quote_public_escape($quote->billing_address_city ?? ''),
+        '$aos_quotes_billing_address_state' => orqo_quote_public_escape($quote->billing_address_state ?? ''),
+        '$aos_quotes_billing_address_postalcode' => orqo_quote_public_escape($quote->billing_address_postalcode ?? ''),
+        '$aos_quotes_billing_address_country' => orqo_quote_public_escape($quote->billing_address_country ?? ''),
+        '$total_amt' => orqo_quote_public_money($quote->total_amt ?? '', $currency),
+        '$discount_amount' => orqo_quote_public_money($quote->discount_amount ?? '', $currency),
+        '$subtotal_amount' => orqo_quote_public_money($quote->subtotal_amount ?? '', $currency),
+        '$tax_amount' => orqo_quote_public_money($quote->tax_amount ?? '', $currency),
+        '$shipping_amount' => orqo_quote_public_money($quote->shipping_amount ?? '', $currency),
+        '$total_amount' => orqo_quote_public_money($quote->total_amount ?? '', $currency),
+    ]);
+
+    $safeLogo = orqo_quote_public_escape($orqoLogo);
+    $templateHtml = preg_replace(
+        '#(?:https://crm\.orqo\.io)?/?(?:legacy/)?custom/themes/suite8/images/company_logo\.png#',
+        $safeLogo,
+        $templateHtml
+    );
+
+    return preg_replace('/\$[a-zA-Z0-9_]+/', '', $templateHtml);
+}
+
+$pdfTemplateHtml = orqo_quote_public_pdf_template($db);
+if ($pdfTemplateHtml !== '') {
+    $renderedTemplate = orqo_quote_public_render_pdf_template($pdfTemplateHtml, $quote, $lineItems, $currency, $orqoLogo);
+
+    header('Content-Type: text/html; charset=UTF-8');
+    header('X-Robots-Tag: noindex, nofollow');
+    echo '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">';
+    echo '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
+    echo '<title>Cotizacion ' . orqo_quote_public_escape($quote->name ?? '') . ' - Orqo CRM</title>';
+    echo '</head><body>' . $renderedTemplate . '</body></html>';
+    if (function_exists('sugar_cleanup')) {
+        sugar_cleanup();
+    }
+    exit;
+}
 
 // ── 8. Renderizar HTML ───────────────────────────────────────────────────────
 header('Content-Type: text/html; charset=UTF-8');
