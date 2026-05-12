@@ -30,6 +30,9 @@ configure_runtime() {
     echo "date.timezone=${PHP_TIMEZONE}" > /usr/local/etc/php/conf.d/99-orqo-timezone.ini
   fi
 
+  echo "ServerName ${SERVER_NAME:-localhost}" > /etc/apache2/conf-available/server-name.conf
+  a2enconf server-name >/dev/null 2>&1 || true
+
   mkdir -p "${APP_DIR}/public/legacy/cache/tmp"
   export TMPDIR="${APP_DIR}/public/legacy/cache/tmp"
   echo "sys_temp_dir=${APP_DIR}/public/legacy/cache/tmp" > /usr/local/etc/php/conf.d/98-orqo-tempdir.ini
@@ -166,6 +169,8 @@ run_composer_install() {
 ensure_permissions() {
   mkdir -p \
     public/legacy/cache \
+    public/legacy/cache/modules \
+    public/legacy/cache/tmp \
     public/legacy/upload \
     public/legacy/custom \
     logs \
@@ -173,15 +178,39 @@ ensure_permissions() {
     var/cache \
     var/log
 
+  if [[ ! -e cache ]]; then
+    ln -s public/legacy/cache cache
+  fi
+
+  if [[ ! -e public/cache ]]; then
+    ln -s legacy/cache public/cache
+  fi
+
+  if [[ -d public/legacy/modules ]]; then
+    for module_dir in public/legacy/modules/*; do
+      [[ -d "${module_dir}" ]] || continue
+      mkdir -p "public/legacy/cache/modules/$(basename "${module_dir}")"
+    done
+  fi
+
+  mkdir -p \
+    public/legacy/cache/modules/Users \
+    public/legacy/cache/modules/Employees \
+    public/legacy/cache/modules/UserPreferences \
+    public/legacy/cache/modules/Administration
+
   chmod +x bin/console 2>/dev/null || true
 
   chown -R "${WEB_USER}:${WEB_GROUP}" \
     "${APP_DIR}" \
     2>/dev/null || true
 
-  find public/legacy/cache public/legacy/upload public/legacy/custom logs var/cache var/log -type d -exec chmod 2775 {} \; 2>/dev/null || true
-  find public/legacy/cache public/legacy/upload public/legacy/custom logs var/cache var/log -type f -exec chmod 664 {} \; 2>/dev/null || true
-  chmod -R 2775 logs public/legacy/cache var/cache var/log 2>/dev/null || true
+  for writable_path in public/legacy/cache public/legacy/upload public/legacy/custom logs var/cache var/log; do
+    [[ -e "${writable_path}" ]] || continue
+    chown -R "${WEB_USER}:${WEB_GROUP}" "${writable_path}/" 2>/dev/null || true
+    find -L "${writable_path}" -type d -exec chmod 2775 {} \; 2>/dev/null || true
+    find -L "${writable_path}" -type f -exec chmod 664 {} \; 2>/dev/null || true
+  done
 }
 
 wait_for_database() {
