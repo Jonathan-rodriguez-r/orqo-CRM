@@ -37,6 +37,7 @@ RUN apt-get update \
         mbstring \
         mysqli \
         opcache \
+        pdo_mysql \
         xml \
         zip \
     && a2enmod rewrite headers expires remoteip \

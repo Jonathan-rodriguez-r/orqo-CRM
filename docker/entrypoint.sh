@@ -233,6 +233,14 @@ install_suitecrm_if_needed() {
   fi
 
   log "Running unattended SuiteCRM install."
+  local apache_pid=""
+  if [[ "${1:-}" == "apache2-foreground" ]]; then
+    log "Starting Apache temporarily for SuiteCRM route checks."
+    apache2-foreground &
+    apache_pid="$!"
+    sleep 5
+  fi
+
   php bin/console suitecrm:app:install \
     -u "${ADMIN_USER}" \
     -p "${ADMIN_PASSWORD}" \
@@ -244,6 +252,12 @@ install_suitecrm_if_needed() {
     -S "${SITE_URL}" \
     -d "${DEMO_DATA}" \
     --no-interaction
+
+  if [[ -n "${apache_pid}" ]]; then
+    log "Stopping temporary Apache after installer."
+    apache2ctl -k graceful-stop >/dev/null 2>&1 || true
+    wait "${apache_pid}" 2>/dev/null || true
+  fi
 }
 
 main() {
@@ -253,7 +267,7 @@ main() {
   configure_persistence
   run_composer_install
   ensure_permissions
-  install_suitecrm_if_needed
+  install_suitecrm_if_needed "$@"
   ensure_permissions
 
   exec "$@"
