@@ -314,7 +314,7 @@ button[type="submit"]:hover,
 .navbar .dropdown-menu,
 .navbar-default .dropdown-menu,
 .navbar-inverse .dropdown-menu {
-  background-color: #1D2920 !important;
+  background-color: #2E4038 !important;
   border: none !important;
   box-shadow: 0 4px 12px rgba(46,64,56,0.18) !important;
 }
@@ -762,7 +762,7 @@ EOF
         'body .navbar .dropdown-menu,',
         'body .navbar-default .navbar-nav .open .dropdown-menu,',
         'body .dropdown-menu{',
-          'background-color:#1D2920!important;border:none!important;',
+          'background-color:#2E4038!important;border:none!important;',
           'box-shadow:0 6px 16px rgba(0,0,0,.35)!important;}',
         /* dropdown header (usuario/email) */
         'body .dropdown-menu .dropdown-header,',
