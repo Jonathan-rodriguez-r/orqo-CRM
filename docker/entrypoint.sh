@@ -324,8 +324,11 @@ reset_admin_password_if_requested() {
 
   local password_hash
   password_hash="$(
-    RESET_ADMIN_PASSWORD="${RESET_ADMIN_PASSWORD}" php -r 'echo password_hash(strtolower(md5(getenv("RESET_ADMIN_PASSWORD"))), PASSWORD_DEFAULT);'
+    RESET_ADMIN_PASSWORD="${RESET_ADMIN_PASSWORD}" php -r 'echo password_hash(md5(getenv("RESET_ADMIN_PASSWORD")), PASSWORD_BCRYPT);'
   )"
+  local escaped_hash
+  escaped_hash="${password_hash//\\/\\\\}"
+  escaped_hash="${escaped_hash//\'/\'\'}"
 
   MYSQL_PWD="${DB_PASSWORD}" mysql \
     --host="${DB_HOST}" \
@@ -335,14 +338,18 @@ reset_admin_password_if_requested() {
     --execute="
       UPDATE users
       SET
-        user_hash = '${password_hash}',
+        user_hash = '${escaped_hash}',
         status = 'Active',
         deleted = 0,
         is_admin = 1,
         sugar_login = 1,
         external_auth_only = 0,
         system_generated_password = 0,
-        pwd_last_changed = NOW()
+        pwd_last_changed = UTC_DATE()
+      WHERE id = '1' OR user_name = 'admin';
+
+      SELECT id, user_name, LEFT(user_hash, 7) AS hash_prefix, status, is_admin, deleted, sugar_login
+      FROM users
       WHERE id = '1' OR user_name = 'admin';
     "
 }
