@@ -314,7 +314,7 @@ button[type="submit"]:hover,
 .navbar .dropdown-menu,
 .navbar-default .dropdown-menu,
 .navbar-inverse .dropdown-menu {
-  background-color: #7A9488 !important;
+  background-color: #1D2920 !important;
   border: none !important;
   box-shadow: 0 4px 12px rgba(46,64,56,0.18) !important;
 }
@@ -737,58 +737,92 @@ EOF
     [/SalesAgility/g, "Orqo"]
   ];
 
+  var _injectTimer = null;
   function injectColorStyles() {
-    if (document.getElementById('orqo-color-overrides')) { return; }
-    var s = document.createElement('style');
-    s.id = 'orqo-color-overrides';
-    s.textContent = [
-      /* ── active nav item ── */
-      'body .navbar-default .navbar-nav>.active>a,',
-      'body .navbar-default .navbar-nav>.active>a:hover,',
-      'body .navbar-default .navbar-nav>.active>a:focus,',
-      'body .navbar .active>a,body .navbar .active>a:hover,',
-      'body .navbar .active>a:focus{',
-        'background-color:#F5F5F2!important;',
-        'color:#2E4038!important;',
-        'border:none!important;box-shadow:none!important;',
-        'max-height:46px!important;overflow:hidden!important;}',
-      'body .navbar-default .navbar-nav>.active>a *,',
-      'body .navbar .active>a *{color:#2E4038!important;}',
-      /* ── dropdown panel ── */
-      'body .navbar .dropdown-menu,',
-      'body .navbar-default .navbar-nav .open .dropdown-menu,',
-      'body .dropdown-menu{',
-        'background-color:#7A9488!important;border:none!important;',
-        'box-shadow:0 4px 12px rgba(46,64,56,.18)!important;}',
-      'body .navbar .dropdown-menu>li>a,',
-      'body .navbar-default .navbar-nav .open .dropdown-menu>li>a,',
-      'body .dropdown-menu>li>a{color:#fff!important;}',
-      /* ── dropdown hover ── */
-      'body .navbar .dropdown-menu>li>a:hover,',
-      'body .navbar .dropdown-menu>li>a:focus,',
-      'body .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover,',
-      'body .navbar-default .navbar-nav .open .dropdown-menu>li>a:focus,',
-      'body .dropdown-menu>li>a:hover,',
-      'body .dropdown-menu>li>a:focus,',
-      'body .dropdown-menu .active>a,',
-      'body .dropdown-menu .active>a:hover{',
-        'background-color:#1A8A55!important;color:#fff!important;}',
-      /* ── alert / notification banner ── */
-      'body .alert,',
-      'body .alert-warning,body .alert-danger,body .alert-error,body .alert-info,',
-      'body [class*="alert"],body [class*="notification-bar"],',
-      'body [class*="notifyDiv"],body #notifyDiv,',
-      'body .errorOccurred,body #notify_messages,body .notify_message,',
-      'body scrm-alert,body app-alert,body scrm-notification,',
-      'body [class*="system-message"]{',
-        'background-color:#1A8A55!important;',
-        'border-color:#176647!important;',
-        'color:#fff!important;}',
-      'body .alert a,body [class*="alert"] a,body [class*="notification-bar"] a,',
-      'body .errorOccurred a,body #notify_messages a{',
-        'color:#d4f5e4!important;text-decoration:underline!important;}'
-    ].join('');
-    document.head.appendChild(s);
+    if (_injectTimer) { return; }
+    _injectTimer = setTimeout(function () {
+      _injectTimer = null;
+      var existing = document.getElementById('orqo-color-overrides');
+      if (existing) { existing.parentNode.removeChild(existing); }
+      var s = document.createElement('style');
+      s.id = 'orqo-color-overrides';
+      s.textContent = [
+        /* active nav item */
+        'body .navbar-default .navbar-nav>.active>a,',
+        'body .navbar-default .navbar-nav>.active>a:hover,',
+        'body .navbar-default .navbar-nav>.active>a:focus,',
+        'body .navbar .active>a,body .navbar .active>a:hover,',
+        'body .navbar .active>a:focus{',
+          'background-color:#F5F5F2!important;color:#2E4038!important;',
+          'border:none!important;box-shadow:none!important;',
+          'max-height:46px!important;overflow:hidden!important;}',
+        'body .navbar-default .navbar-nav>.active>a *,',
+        'body .navbar .active>a *{color:#2E4038!important;}',
+        /* dropdown panel */
+        'body .navbar .dropdown-menu,',
+        'body .navbar-default .navbar-nav .open .dropdown-menu,',
+        'body .dropdown-menu{',
+          'background-color:#1D2920!important;border:none!important;',
+          'box-shadow:0 6px 16px rgba(0,0,0,.35)!important;}',
+        /* dropdown header (usuario/email) */
+        'body .dropdown-menu .dropdown-header,',
+        'body .dropdown-menu .user-header,',
+        'body .dropdown-menu li.dropdown-header,',
+        'body .navbar-right .dropdown-menu li:first-child a,',
+        'body .navbar-right .dropdown-menu li:first-child{',
+          'color:#a8c4b4!important;background-color:#111a13!important;}',
+        /* dropdown links */
+        'body .navbar .dropdown-menu>li>a,',
+        'body .navbar-default .navbar-nav .open .dropdown-menu>li>a,',
+        'body .dropdown-menu>li>a{color:#e8f0ec!important;}',
+        /* alert / notification banner */
+        'body .alert,body .alert-warning,body .alert-danger,',
+        'body .alert-error,body .alert-info,',
+        'body [class*="alert"],body [class*="notification-bar"],',
+        'body #notifyDiv,body .errorOccurred,',
+        'body #notify_messages,body .notify_message,',
+        'body scrm-alert,body app-alert,body scrm-notification{',
+          'background-color:#1A8A55!important;',
+          'border-color:#176647!important;color:#fff!important;}',
+        'body .alert a,body [class*="alert"] a,',
+        'body .errorOccurred a,body #notify_messages a{',
+          'color:#d4f5e4!important;text-decoration:underline!important;}'
+      ].join('');
+      document.head.appendChild(s);
+    }, 80);
+  }
+
+  function patchDropdownHover() {
+    document.querySelectorAll('.dropdown-menu li a, .dropdown-menu a').forEach(function (link) {
+      if (link._orqoHover) { return; }
+      link._orqoHover = true;
+      link.addEventListener('mouseenter', function () {
+        this.style.setProperty('background-color', '#1A8A55', 'important');
+        this.style.setProperty('color', '#ffffff', 'important');
+      });
+      link.addEventListener('mouseleave', function () {
+        this.style.removeProperty('background-color');
+        this.style.setProperty('color', '#e8f0ec', 'important');
+      });
+    });
+  }
+
+  function patchCoralElements() {
+    var els = document.querySelectorAll('body *');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      if (el._orqoCoralChecked) { continue; }
+      el._orqoCoralChecked = true;
+      var bg = window.getComputedStyle(el).backgroundColor;
+      var m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      if (!m) { continue; }
+      var r = +m[1], g = +m[2], b = +m[3];
+      if (r > 180 && g < 130 && b < 130 && r > g + 60) {
+        el.style.setProperty('background-color', '#1A8A55', 'important');
+        el.style.setProperty('color', '#ffffff', 'important');
+        el.style.setProperty('border-color', '#176647', 'important');
+      }
+    }
   }
 
   function isAboutRoute() {
@@ -962,11 +996,14 @@ EOF
   }
 
   function applyBranding() {
+    injectColorStyles();
     walkText(document.body);
     patchLogos();
     patchAboutHeadings();
     patchLoaders();
     replaceAboutPage();
+    patchDropdownHover();
+    patchCoralElements();
   }
 
   function scheduleAboutRefresh() {

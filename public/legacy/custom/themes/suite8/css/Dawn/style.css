@@ -87,7 +87,7 @@ header img[src*="company_logo"] {
 .navbar .dropdown-menu,
 .navbar-default .dropdown-menu,
 .navbar-inverse .dropdown-menu {
-  background-color: #7A9488 !important;
+  background-color: #1D2920 !important;
   border: none !important;
   box-shadow: 0 4px 12px rgba(46,64,56,0.18) !important;
 }
