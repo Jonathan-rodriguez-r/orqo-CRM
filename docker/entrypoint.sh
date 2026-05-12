@@ -1106,11 +1106,10 @@ EOF
 patch_legacy_theme_colors() {
   log "Injecting Orqo color overrides into legacy theme CSS source."
 
-  _orqo_append_css() {
-    local target="$1"
-    [[ -f "${target}" ]] || return
-    grep -q "Orqo CRM color overrides" "${target}" 2>/dev/null && return
-    cat >> "${target}" <<'ORQO_APPEND_END'
+  local _orqo_tmp
+  _orqo_tmp=$(mktemp /tmp/orqo_css.XXXXXX 2>/dev/null) || { log "mktemp failed; skipping theme color patch."; return; }
+
+  cat > "${_orqo_tmp}" <<'ORQO_CSS_BLOCK'
 
 /* === Orqo CRM color overrides === */
 body, .sugar_body_td, #content, .container-fluid {
@@ -1198,12 +1197,18 @@ body, .sugar_body_td, #content, .container-fluid {
 footer, .footer, .login-footer {
   color: #5f6470 !important;
 }
-ORQO_APPEND_END
-  }
+ORQO_CSS_BLOCK
 
-  _orqo_append_css "public/legacy/themes/SuiteP/css/Dawn/style.css"
-  _orqo_append_css "public/legacy/themes/suite8/css/Dawn/style.css"
+  local _f
+  for _f in \
+    "public/legacy/themes/SuiteP/css/Dawn/style.css" \
+    "public/legacy/themes/suite8/css/Dawn/style.css"; do
+    [[ -f "${_f}" ]] || continue
+    grep -q "Orqo CRM color overrides" "${_f}" 2>/dev/null && continue
+    cat "${_orqo_tmp}" >> "${_f}"
+  done
 
+  rm -f "${_orqo_tmp}" 2>/dev/null || true
   rm -rf public/legacy/cache/themes/SuiteP public/legacy/cache/themes/suite8 2>/dev/null || true
 }
 
