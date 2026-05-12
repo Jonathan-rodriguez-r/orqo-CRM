@@ -31,3 +31,4 @@ $mod_strings['LBL_EMPLOYEES'] = 'Empleados';
 $mod_strings['LBL_MEMBER_OF'] = 'Miembro de';
 $mod_strings['LBL_CAMPAIGN'] = 'Campana';
 $mod_strings['LBL_DESCRIPTION'] = 'Descripcion';
+$mod_strings['LBL_ORQO_LOGO'] = 'Logo del cliente';

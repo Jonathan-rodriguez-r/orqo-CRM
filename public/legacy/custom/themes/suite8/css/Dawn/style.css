@@ -267,7 +267,7 @@ body:has([class*="about"]) img[src*="company_logo"],
 [class*="about"] img[src*="company_logo"],
 [class*="About"] img[src*="company_logo"],
 .about img[src*="company_logo"] {
-  content: url("/legacy/themes/suite8/images/company_logo.png") !important;
+  content: url("/legacy/custom/themes/suite8/images/company_logo.png") !important;
   width: min(430px, 78vw) !important;
   max-width: 430px !important;
   height: auto !important;

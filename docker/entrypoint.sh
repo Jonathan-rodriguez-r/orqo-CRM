@@ -465,7 +465,7 @@ body:has([class*="about"]) img[src*="company_logo"],
 [class*="about"] img[src*="company_logo"],
 [class*="About"] img[src*="company_logo"],
 .about img[src*="company_logo"] {
-  content: url("/legacy/themes/suite8/images/company_logo.png") !important;
+  content: url("/legacy/custom/themes/suite8/images/company_logo.png") !important;
   width: min(430px, 78vw) !important;
   max-width: 430px !important;
   height: auto !important;
@@ -1162,7 +1162,7 @@ EOF
 
   function patchLogos() {
     var logo = isAboutRoute()
-      ? "/legacy/themes/suite8/images/company_logo.png"
+      ? "/legacy/custom/themes/suite8/images/company_logo.png"
       : "/legacy/themes/suite8/images/company_logo_white.png";
 
     document.querySelectorAll('img[src*="company_logo"], img[src*="suitecrm"], img[alt*="Suite"]').forEach(function (img) {
@@ -1260,7 +1260,7 @@ EOF
 
     if (el.dataset) { el.dataset.orqoAbout = '1'; }
     el.innerHTML = '<div style="padding:2rem 2.5rem;max-width:720px;margin:0 auto;font-family:inherit;color:#3a4050;">'
-      + '<img src="/legacy/themes/suite8/images/company_logo.png?v=' + ASSET_VERSION + '" alt="Orqo CRM"'
+      + '<img src="/legacy/custom/themes/suite8/images/company_logo.png?v=' + ASSET_VERSION + '" alt="Orqo CRM"'
       + ' style="max-width:280px;height:auto;display:block;margin:0 0 2rem;" />'
       + '<h2 style="color:#2E4038;font-size:1.35rem;font-weight:700;margin:0 0 0.4rem;">'
       + 'Orqo CRM &mdash; Engineering CRM para alta ingenier&iacute;a, fidelizaci&oacute;n y PQRS'
