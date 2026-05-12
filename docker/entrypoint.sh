@@ -1937,6 +1937,103 @@ configure_orqo_currency_and_locale() {
     " 2>/dev/null || true
 }
 
+configure_colombia_tax_rates() {
+  if ! database_has_suitecrm; then
+    return
+  fi
+
+  log "Configuring Colombian IVA tax rates for quotes: 0%, 5%, 19%."
+
+  MYSQL_PWD="${DB_PASSWORD}" mysql \
+    --host="${DB_HOST}" \
+    --port="${DB_PORT}" \
+    --user="${DB_USER}" \
+    --database="${DB_NAME}" \
+    --execute="
+      UPDATE aos_tax_rates
+      SET
+        deleted = 1,
+        status = 'Inactive',
+        date_modified = UTC_TIMESTAMP()
+      WHERE id NOT IN ('orqo-tax-colombia-0', 'orqo-tax-colombia-5', 'orqo-tax-colombia-19');
+
+      INSERT INTO aos_tax_rates (
+        id, name, date_entered, date_modified, modified_user_id, created_by,
+        description, deleted, assigned_user_id, percentage, status
+      )
+      VALUES (
+        'orqo-tax-colombia-0',
+        'IVA 0% - Exento/Excluido Colombia',
+        UTC_TIMESTAMP(),
+        UTC_TIMESTAMP(),
+        '1',
+        '1',
+        'Colombia: bienes o servicios exentos o excluidos de IVA.',
+        0,
+        '1',
+        0.000000,
+        'Active'
+      )
+      ON DUPLICATE KEY UPDATE
+        name = VALUES(name),
+        description = VALUES(description),
+        percentage = VALUES(percentage),
+        status = 'Active',
+        deleted = 0,
+        date_modified = UTC_TIMESTAMP();
+
+      INSERT INTO aos_tax_rates (
+        id, name, date_entered, date_modified, modified_user_id, created_by,
+        description, deleted, assigned_user_id, percentage, status
+      )
+      VALUES (
+        'orqo-tax-colombia-5',
+        'IVA 5% - Tarifa reducida Colombia',
+        UTC_TIMESTAMP(),
+        UTC_TIMESTAMP(),
+        '1',
+        '1',
+        'Colombia: tarifa reducida de IVA para bienes y servicios definidos por norma.',
+        0,
+        '1',
+        5.000000,
+        'Active'
+      )
+      ON DUPLICATE KEY UPDATE
+        name = VALUES(name),
+        description = VALUES(description),
+        percentage = VALUES(percentage),
+        status = 'Active',
+        deleted = 0,
+        date_modified = UTC_TIMESTAMP();
+
+      INSERT INTO aos_tax_rates (
+        id, name, date_entered, date_modified, modified_user_id, created_by,
+        description, deleted, assigned_user_id, percentage, status
+      )
+      VALUES (
+        'orqo-tax-colombia-19',
+        'IVA 19% - Tarifa general Colombia',
+        UTC_TIMESTAMP(),
+        UTC_TIMESTAMP(),
+        '1',
+        '1',
+        'Colombia: tarifa general del impuesto sobre las ventas IVA.',
+        0,
+        '1',
+        19.000000,
+        'Active'
+      )
+      ON DUPLICATE KEY UPDATE
+        name = VALUES(name),
+        description = VALUES(description),
+        percentage = VALUES(percentage),
+        status = 'Active',
+        deleted = 0,
+        date_modified = UTC_TIMESTAMP();
+    " 2>/dev/null || log "Colombian IVA tax rate configuration skipped; AOS tax schema may still be initializing."
+}
+
 fetch_current_trm() {
   local trm
 
@@ -2258,6 +2355,7 @@ main() {
   ensure_permissions
   install_suitecrm_if_needed "$@"
   configure_orqo_currency_and_locale
+  configure_colombia_tax_rates
   reset_admin_password_if_requested
   seed_demo_data_if_requested
   ensure_permissions
