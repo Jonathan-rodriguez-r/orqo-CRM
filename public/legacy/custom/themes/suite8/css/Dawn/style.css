@@ -48,7 +48,29 @@ header img[src*="company_logo"] {
 .navbar .open > a,
 .navbar .dropdown-menu > li > a:hover {
   color: #ffffff !important;
-  background-color: var(--orqo-coral) !important;
+  background-color: #2CB978 !important;
+}
+
+.alert,
+.alert-warning,
+.alert-error,
+.alert-danger,
+.alert-info,
+.errorOccurred,
+#notify_messages,
+.notify_message,
+div.notify {
+  background-color: #1A8A55 !important;
+  border-color: #176647 !important;
+  color: #ffffff !important;
+}
+
+.alert a,
+.alert-warning a,
+.notify_message a,
+.errorOccurred a {
+  color: #d4f5e4 !important;
+  text-decoration: underline !important;
 }
 
 .btn-primary,

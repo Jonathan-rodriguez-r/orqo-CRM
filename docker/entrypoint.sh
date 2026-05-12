@@ -273,6 +273,38 @@ button[type="submit"]:hover,
   border-color: #176647 !important;
 }
 
+.navbar .active > a,
+.navbar .open > a,
+.navbar .dropdown-menu > li > a:hover,
+.navbar-nav > .active > a,
+.navbar-nav > .active > a:hover,
+.navbar-nav > .active > a:focus {
+  color: #ffffff !important;
+  background-color: #2CB978 !important;
+}
+
+.alert,
+.alert-warning,
+.alert-error,
+.alert-danger,
+.alert-info,
+.errorOccurred,
+#notify_messages,
+.notify_message,
+div.notify {
+  background-color: #1A8A55 !important;
+  border-color: #176647 !important;
+  color: #ffffff !important;
+}
+
+.alert a,
+.alert-warning a,
+.notify_message a,
+.errorOccurred a {
+  color: #d4f5e4 !important;
+  text-decoration: underline !important;
+}
+
 img[src*="company_logo"] {
   max-width: 430px !important;
   height: auto !important;
