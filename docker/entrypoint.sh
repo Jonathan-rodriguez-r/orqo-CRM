@@ -128,10 +128,13 @@ apply_orqo_overlay() {
     mkdir -p \
       "${APP_DIR}/public/legacy/themes/default/images" \
       "${APP_DIR}/public/legacy/themes/SuiteP/images" \
-      "${APP_DIR}/public/legacy/themes/suite8/images"
+      "${APP_DIR}/public/legacy/themes/suite8/images" \
+      "${APP_DIR}/public/dist/themes/suite8/images"
 
     cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/company_logo.png" \
       "${APP_DIR}/public/legacy/themes/default/images/company_logo.png" 2>/dev/null || true
+    cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/company_logo.png" \
+      "${APP_DIR}/public/legacy/themes/suite8/images/company_logo.png" 2>/dev/null || true
     cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/company_logo.png" \
       "${APP_DIR}/public/legacy/themes/suite8/images/login_logo.png" 2>/dev/null || true
 
@@ -143,7 +146,27 @@ apply_orqo_overlay() {
     cp -f "${header_logo}" \
       "${APP_DIR}/public/legacy/themes/SuiteP/images/company_logo.png" 2>/dev/null || true
     cp -f "${header_logo}" \
-      "${APP_DIR}/public/legacy/themes/suite8/images/company_logo.png" 2>/dev/null || true
+      "${APP_DIR}/public/legacy/themes/suite8/images/company_logo_white.png" 2>/dev/null || true
+  fi
+
+  if [[ -f "${APP_DIR}/public/legacy/custom/themes/default/images/orqo-icon.png" ]]; then
+    cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/orqo-icon.png" \
+      "${APP_DIR}/public/favicon.png" 2>/dev/null || true
+    cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/orqo-icon.png" \
+      "${APP_DIR}/public/apple-touch-icon.png" 2>/dev/null || true
+    cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/orqo-icon.png" \
+      "${APP_DIR}/public/icon-192.png" 2>/dev/null || true
+  fi
+
+  if [[ -f "${APP_DIR}/public/legacy/custom/themes/default/images/favicon.ico" ]]; then
+    cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/favicon.ico" \
+      "${APP_DIR}/public/favicon.ico" 2>/dev/null || true
+    cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/favicon.ico" \
+      "${APP_DIR}/public/legacy/themes/default/images/favicon.ico" 2>/dev/null || true
+    cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/favicon.ico" \
+      "${APP_DIR}/public/legacy/themes/suite8/images/favicon.ico" 2>/dev/null || true
+    cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/favicon.ico" \
+      "${APP_DIR}/public/dist/themes/suite8/images/favicon.ico" 2>/dev/null || true
   fi
 }
 
@@ -194,10 +217,11 @@ body .navbar-header,
 body .navbar .logo,
 body .navbar img[src*="company_logo"],
 body header img[src*="company_logo"] {
+  content: url("/legacy/themes/suite8/images/company_logo_white.png") !important;
   height: 36px !important;
   max-height: 36px !important;
   width: auto !important;
-  max-width: 180px !important;
+  max-width: 190px !important;
   object-fit: contain !important;
   margin: 6px 12px !important;
   position: static !important;
@@ -247,7 +271,7 @@ button[type="submit"]:hover,
 }
 
 img[src*="company_logo"] {
-  max-width: 360px !important;
+  max-width: 430px !important;
   height: auto !important;
 }
 
