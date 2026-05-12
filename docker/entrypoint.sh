@@ -1673,6 +1673,30 @@ reset_admin_password_if_requested() {
     "
 }
 
+seed_demo_data_if_requested() {
+  if [[ "${ORQO_SEED_DEMO_DATA:-0}" != "1" ]]; then
+    return
+  fi
+
+  if ! database_has_suitecrm; then
+    log "Demo seed requested but SuiteCRM database is not ready."
+    return
+  fi
+
+  local seeder="public/legacy/custom/orqo/seeders/demo_colombia.php"
+
+  if [[ ! -f "${seeder}" ]]; then
+    log "Demo seed requested but ${seeder} was not found."
+    return
+  fi
+
+  log "Seeding Orqo CRM Colombia demo data."
+
+  if ! php "${seeder}"; then
+    log "Demo seed failed. Continuing startup without blocking Apache."
+  fi
+}
+
 main() {
   configure_runtime
   download_suitecrm_if_needed
@@ -1691,6 +1715,7 @@ main() {
   install_suitecrm_if_needed "$@"
   configure_orqo_currency_and_locale
   reset_admin_password_if_requested
+  seed_demo_data_if_requested
   ensure_permissions
   tail_application_logs
 
