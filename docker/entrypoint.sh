@@ -1122,6 +1122,160 @@ EOF
     return window.location.hash.indexOf("/home/about") !== -1;
   }
 
+  /* ── Login page logo ────────────────────────────────────────────────────── */
+  function patchLoginPage() {
+    /* Detect login: Angular hash is empty / #/login, OR legacy login page */
+    var hash = window.location.hash;
+    var isLoginRoute = hash === '' || hash === '#/' || hash === '#/login'
+                    || window.location.pathname.indexOf('index.php') !== -1
+                       && (window.location.search.indexOf('action=Login') !== -1
+                           || window.location.search.indexOf('action=index') !== -1);
+
+    if (!isLoginRoute && hash.length > 2) { return; }
+
+    if (document._orqoLoginPatched) { return; }
+
+    /* Look for language selector (legacy: select[name="language_choice"];
+       Angular: [class*="language"], scrm-language-select, select inside login) */
+    var langSel = document.querySelector(
+      'select[name="language_choice"], [class*="language-select"], scrm-language-select, ' +
+      'scrm-login select, app-login select, [class*="login"] select'
+    );
+
+    /* Fallback: any select on a page that has a login form */
+    if (!langSel) {
+      var loginForm = document.querySelector(
+        'scrm-login, app-login, #loginForm, .login-form, [class*="login-container"], form[action*="Login"]'
+      );
+      if (!loginForm) { return; }
+      langSel = loginForm.querySelector('select') || loginForm;
+    }
+
+    if (!langSel) { return; }
+
+    /* Avoid duplicate injection */
+    if (document.getElementById('orqo-login-logo')) { return; }
+
+    var img = document.createElement('img');
+    img.id  = 'orqo-login-logo';
+    img.src = '/legacy/custom/themes/suite8/images/company_logo.png';
+    img.alt = 'Orqo CRM';
+    img.style.cssText = [
+      'display:block',
+      'max-width:220px',
+      'width:auto',
+      'height:auto',
+      'max-height:64px',
+      'margin:0 auto 1.2rem',
+      'object-fit:contain',
+    ].join(';');
+
+    var wrapper = document.createElement('div');
+    wrapper.style.cssText = 'text-align:center;margin-bottom:0.5rem;';
+    wrapper.appendChild(img);
+
+    langSel.parentNode.insertBefore(wrapper, langSel);
+    document._orqoLoginPatched = true;
+  }
+
+  /* ── Publicar cotización button ─────────────────────────────────────────── */
+  function patchQuoteDetailView() {
+    /* Only on AOS_Quotes DetailView (legacy URL) */
+    var search = window.location.search;
+    if (search.indexOf('module=AOS_Quotes') === -1) { return; }
+    if (search.indexOf('action=DetailView') === -1
+        && search.indexOf('action=OrqoPublish') === -1) { return; }
+
+    /* Already injected? */
+    if (document.getElementById('orqo-publish-bar')) { return; }
+
+    /* Find record ID from URL */
+    var recordMatch = search.match(/[?&]record=([^&]+)/);
+    if (!recordMatch) { return; }
+    var recordId = decodeURIComponent(recordMatch[1]);
+
+    /* Find button bar (SuiteCRM renders .detail-buttons or .fld_save area) */
+    var buttonBar = document.querySelector(
+      '.detail-buttons, .action_button_bar, .buttons-column, .actionsContainer, ' +
+      '#buttonRow, .buttons-row, .detail-view-action-buttons'
+    );
+    if (!buttonBar) { return; }
+
+    /* Check if URL shows we just published (orqo_published=1) */
+    var justPublished = search.indexOf('orqo_published=1') !== -1;
+    var publicUrl = '';
+    if (justPublished) {
+      var urlMatch = search.match(/[?&]orqo_url=([^&]+)/);
+      if (urlMatch) { publicUrl = decodeURIComponent(urlMatch[1]); }
+    }
+
+    /* Build the bar */
+    var bar = document.createElement('div');
+    bar.id = 'orqo-publish-bar';
+    bar.style.cssText = [
+      'display:flex', 'align-items:center', 'flex-wrap:wrap', 'gap:0.75rem',
+      'padding:0.75rem 1rem', 'margin:0.5rem 0',
+      'background:#f7f3ec', 'border:1px solid #d4e8db',
+      'border-radius:6px', 'font-family:inherit',
+    ].join(';');
+
+    var btn = document.createElement('a');
+    btn.href = 'index.php?module=AOS_Quotes&action=OrqoPublish&record=' + encodeURIComponent(recordId);
+    btn.textContent = 'Publicar cotización';
+    btn.style.cssText = [
+      'display:inline-block', 'padding:0.45rem 1.1rem',
+      'background:#1A8A55', 'color:#ffffff',
+      'border-radius:4px', 'font-size:0.88rem', 'font-weight:600',
+      'text-decoration:none', 'cursor:pointer',
+      'transition:background 0.15s',
+    ].join(';');
+    btn.onmouseover = function () { this.style.background = '#176647'; };
+    btn.onmouseout  = function () { this.style.background = '#1A8A55'; };
+
+    bar.appendChild(btn);
+
+    if (justPublished && publicUrl) {
+      var urlBox = document.createElement('div');
+      urlBox.style.cssText = 'display:flex;align-items:center;gap:0.5rem;flex:1;min-width:0;';
+
+      var label = document.createElement('span');
+      label.textContent = 'Enlace para el cliente:';
+      label.style.cssText = 'font-size:0.82rem;color:#2E4038;font-weight:600;white-space:nowrap;';
+
+      var link = document.createElement('a');
+      link.href   = publicUrl;
+      link.target = '_blank';
+      link.textContent = publicUrl;
+      link.style.cssText = [
+        'font-size:0.82rem', 'color:#1A8A55',
+        'overflow:hidden', 'text-overflow:ellipsis', 'white-space:nowrap',
+        'max-width:360px', 'display:inline-block',
+      ].join(';');
+
+      var copyBtn = document.createElement('button');
+      copyBtn.textContent = 'Copiar';
+      copyBtn.style.cssText = [
+        'padding:0.2rem 0.6rem', 'font-size:0.78rem',
+        'background:#2E4038', 'color:#fff',
+        'border:none', 'border-radius:3px', 'cursor:pointer',
+      ].join(';');
+      copyBtn.onclick = function () {
+        navigator.clipboard && navigator.clipboard.writeText(publicUrl).then(function () {
+          copyBtn.textContent = '¡Copiado!';
+          setTimeout(function () { copyBtn.textContent = 'Copiar'; }, 2000);
+        });
+      };
+
+      urlBox.appendChild(label);
+      urlBox.appendChild(link);
+      urlBox.appendChild(copyBtn);
+      bar.appendChild(urlBox);
+    }
+
+    /* Insert above the button bar */
+    buttonBar.parentNode.insertBefore(bar, buttonBar);
+  }
+
   function replaceTextNode(node) {
     var value = node.nodeValue;
     var trimmed = value.trim();
@@ -1299,6 +1453,8 @@ EOF
     patchDropdownHover();
     patchActiveNavItem();
     patchNotificationBanner();
+    patchLoginPage();
+    patchQuoteDetailView();
   }
 
   function scheduleAboutRefresh() {
