@@ -311,8 +311,23 @@ button[type="submit"]:hover,
   box-shadow: none !important;
 }
 
+.navbar .dropdown-menu,
+.navbar-default .dropdown-menu,
+.navbar-inverse .dropdown-menu {
+  background-color: #7A9488 !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(46,64,56,0.18) !important;
+}
+
+.navbar .dropdown-menu > li > a,
+.navbar-default .dropdown-menu > li > a {
+  color: #ffffff !important;
+}
+
 .navbar .dropdown-menu > li > a:hover,
-.navbar .dropdown-menu > li > a:focus {
+.navbar .dropdown-menu > li > a:focus,
+.navbar-default .dropdown-menu > li > a:hover,
+.navbar-default .dropdown-menu > li > a:focus {
   color: #ffffff !important;
   background-color: #1A8A55 !important;
 }
@@ -722,6 +737,38 @@ EOF
     [/SalesAgility/g, "Orqo"]
   ];
 
+  function injectColorStyles() {
+    if (document.getElementById('orqo-color-overrides')) { return; }
+    var s = document.createElement('style');
+    s.id = 'orqo-color-overrides';
+    s.textContent = [
+      'body .navbar-default .navbar-nav>.active>a,',
+      'body .navbar-default .navbar-nav>.active>a:hover,',
+      'body .navbar-default .navbar-nav>.active>a:focus,',
+      'body .navbar .active>a,body .navbar .active>a:hover,',
+      'body .navbar .active>a:focus{',
+        'background-color:#F5F5F2!important;',
+        'color:#2E4038!important;',
+        'border:none!important;box-shadow:none!important;',
+        'max-height:46px!important;overflow:hidden!important;}',
+      'body .navbar-default .navbar-nav>.active>a *,',
+      'body .navbar .active>a *{color:#2E4038!important;}',
+      'body .navbar .dropdown-menu,',
+      'body .navbar-default .navbar-nav .open .dropdown-menu{',
+        'background-color:#7A9488!important;border:none!important;',
+        'box-shadow:0 4px 12px rgba(46,64,56,.18)!important;}',
+      'body .navbar .dropdown-menu>li>a,',
+      'body .navbar-default .navbar-nav .open .dropdown-menu>li>a{color:#fff!important;}',
+      'body .navbar .dropdown-menu>li>a:hover,',
+      'body .navbar .dropdown-menu>li>a:focus,',
+      'body .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover,',
+      'body .navbar-default .navbar-nav .open .dropdown-menu>li>a:focus,',
+      'body .dropdown-menu>li>a:hover,body .dropdown-menu>li>a:focus{',
+        'background-color:#1A8A55!important;color:#fff!important;}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
   function isAboutRoute() {
     return window.location.hash.indexOf("/home/about") !== -1;
   }
@@ -834,11 +881,70 @@ EOF
     });
   }
 
+  function replaceAboutPage() {
+    if (!isAboutRoute()) { return; }
+
+    var el = null;
+    var selectors = ['scrm-about', 'app-about', 'scrm-about-page', 'app-about-page',
+                     '.about-page', '[class*="about-page"]', '[class*="aboutPage"]'];
+    for (var i = 0; i < selectors.length; i++) {
+      el = document.querySelector(selectors[i]);
+      if (el) { break; }
+    }
+
+    if (!el) {
+      var candidates = document.querySelectorAll('main, [role="main"], [class*="content"], [class*="Content"]');
+      for (var c = 0; c < candidates.length; c++) {
+        var t = candidates[c].textContent || '';
+        if (t.indexOf('SuiteCRM') !== -1 || t.indexOf('SalesAgility') !== -1 || t.indexOf('Fuentes Abiertas') !== -1) {
+          el = candidates[c];
+          break;
+        }
+      }
+    }
+
+    if (!el) { return; }
+    if (el.dataset && el.dataset.orqoAbout) { return; }
+    var content = el.textContent || '';
+    if (!content.trim()) { return; }
+    if (content.indexOf('SuiteCRM') === -1 && content.indexOf('SalesAgility') === -1 && content.indexOf('Fuentes Abiertas') === -1) { return; }
+
+    if (el.dataset) { el.dataset.orqoAbout = '1'; }
+    el.innerHTML = '<div style="padding:2rem 2.5rem;max-width:720px;margin:0 auto;font-family:inherit;color:#3a4050;">'
+      + '<img src="/legacy/themes/suite8/images/company_logo.png?v=' + ASSET_VERSION + '" alt="Orqo CRM"'
+      + ' style="max-width:280px;height:auto;display:block;margin:0 0 2rem;" />'
+      + '<h2 style="color:#2E4038;font-size:1.35rem;font-weight:700;margin:0 0 0.4rem;">'
+      + 'Orqo CRM &mdash; Engineering CRM para alta ingenier&iacute;a, fidelizaci&oacute;n y PQRS'
+      + '</h2>'
+      + '<p style="color:#7c8a8a;margin:0 0 2.5rem;font-size:0.95rem;">Versi&oacute;n 8.8.1</p>'
+      + '<h3 style="color:#1A8A55;font-size:1.05rem;font-weight:600;margin:0 0 0.75rem;">Acerca de Orqo CRM</h3>'
+      + '<ul style="margin:0 0 2rem;padding-left:1.5rem;line-height:1.75;">'
+      + '<li>Orqo CRM se apoya en plataforma open source AGPLv3, personalizada para procesos de alta ingenier&iacute;a.</li>'
+      + '<li>Las extensiones propias se mantienen en capa custom para conservar compatibilidad de actualizaci&oacute;n.</li>'
+      + '<li>El soporte operativo es gestionado por el equipo de arquitectura y SRE del proyecto.</li>'
+      + '</ul>'
+      + '<h3 style="color:#1A8A55;font-size:1.05rem;font-weight:600;margin:0 0 0.75rem;">Tecnolog&iacute;a base</h3>'
+      + '<ul style="margin:0 0 2rem;padding-left:1.5rem;line-height:1.75;">'
+      + '<li>Motor CRM: SuiteCRM &mdash; plataforma open source AGPLv3.</li>'
+      + '<li>Framework legacy: SugarCRM CE.</li>'
+      + '<li>Capa moderna: Symfony + Angular.</li>'
+      + '<li>Infraestructura: Docker sobre Railway, base MariaDB 10.11.</li>'
+      + '</ul>'
+      + '<h3 style="color:#1A8A55;font-size:1.05rem;font-weight:600;margin:0 0 0.75rem;">Localizaci&oacute;n</h3>'
+      + '<ul style="margin:0 0 2rem;padding-left:1.5rem;line-height:1.75;">'
+      + '<li>Idioma principal: espa&ntilde;ol (es_ES).</li>'
+      + '<li>Moneda base: Peso colombiano (COP) con TRM oficial desde datos.gov.co.</li>'
+      + '<li>Traducciones adaptadas para la operaci&oacute;n de Orqo CRM.</li>'
+      + '</ul>'
+      + '</div>';
+  }
+
   function applyBranding() {
     walkText(document.body);
     patchLogos();
     patchAboutHeadings();
     patchLoaders();
+    replaceAboutPage();
   }
 
   function scheduleAboutRefresh() {
@@ -852,6 +958,7 @@ EOF
   }
 
   function start() {
+    injectColorStyles();
     applyBranding();
 
     var observer = new MutationObserver(function () {
