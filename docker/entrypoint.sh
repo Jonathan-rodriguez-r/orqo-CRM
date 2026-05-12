@@ -276,8 +276,18 @@ set_env_value() {
 }
 
 write_runtime_env() {
+  if [[ -z "${APP_SECRET:-}" ]]; then
+    if grep -q "^APP_SECRET=" .env.local 2>/dev/null; then
+      APP_SECRET="$(grep "^APP_SECRET=" .env.local | tail -n 1 | cut -d= -f2- | tr -d '\"')"
+    else
+      APP_SECRET="$(php -r 'echo bin2hex(random_bytes(32));')"
+    fi
+    export APP_SECRET
+  fi
+
   set_env_value APP_ENV "${APP_ENV:-prod}"
   set_env_value APP_DEBUG "${APP_DEBUG:-0}"
+  set_env_value APP_SECRET "\"${APP_SECRET}\""
   set_env_value DATABASE_URL "\"mysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?serverVersion=mariadb-10.11&charset=utf8mb4\""
   chmod 660 .env.local
 }
