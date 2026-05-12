@@ -22,7 +22,8 @@ DEMO_DATA="${DEMO_DATA:-no}"
 RESET_ADMIN_PASSWORD="${RESET_ADMIN_PASSWORD:-}"
 ORQO_BRAND_NAME="${ORQO_BRAND_NAME:-Orqo CRM}"
 ORQO_DEFAULT_LANGUAGE="${ORQO_DEFAULT_LANGUAGE:-es_ES}"
-ORQO_USD_TO_COP_RATE="${ORQO_USD_TO_COP_RATE:-4000.000000}"
+ORQO_USD_TO_COP_RATE_FALLBACK="${ORQO_USD_TO_COP_RATE_FALLBACK:-4000.000000}"
+ORQO_TRM_API_URL="${ORQO_TRM_API_URL:-https://www.datos.gov.co/resource/32sa-8pi3.json?\$select=valor,vigenciadesde,vigenciahasta&\$order=vigenciadesde%20DESC&\$limit=1}"
 ORQO_SPANISH_LANGUAGE_PACK_URL="${ORQO_SPANISH_LANGUAGE_PACK_URL:-https://sourceforge.net/projects/suitecrmtranslations/files/8.9/es_ES_SuiteCRM_lang_8.9.zip/download}"
 
 log() {
@@ -341,8 +342,8 @@ write_legacy_branding_config() {
 \$sugar_config['default_decimal_seperator'] = ',';
 \$sugar_config['company_logo'] = 'company_logo.png';
 \$sugar_config['company_logo_url'] = '';
-\$sugar_config['company_logo_width'] = '300';
-\$sugar_config['company_logo_height'] = '80';
+\$sugar_config['company_logo_width'] = '360';
+\$sugar_config['company_logo_height'] = '96';
 EOF
 
   touch public/legacy/config_override.php
@@ -360,7 +361,13 @@ configure_orqo_currency_and_locale() {
     return
   fi
 
-  log "Configuring Orqo CRM locale: ${ORQO_DEFAULT_LANGUAGE}, COP base currency, USD secondary."
+  local usd_to_cop_rate
+  local suitecrm_usd_rate
+
+  usd_to_cop_rate="$(fetch_current_trm)"
+  suitecrm_usd_rate="$(php -r 'printf("%.12F", 1 / (float) $argv[1]);' "${usd_to_cop_rate}")"
+
+  log "Configuring Orqo CRM locale: ${ORQO_DEFAULT_LANGUAGE}, COP base currency, USD secondary. TRM=${usd_to_cop_rate}; SuiteCRM USD conversion_rate=${suitecrm_usd_rate}."
 
   MYSQL_PWD="${DB_PASSWORD}" mysql \
     --host="${DB_HOST}" \
@@ -388,7 +395,7 @@ configure_orqo_currency_and_locale() {
         'US Dollar',
         '$',
         'USD',
-        ${ORQO_USD_TO_COP_RATE},
+        ${suitecrm_usd_rate},
         'Active',
         0,
         UTC_TIMESTAMP(),
@@ -416,6 +423,32 @@ configure_orqo_currency_and_locale() {
       SET contents = REPLACE(contents, 'en_us', '${ORQO_DEFAULT_LANGUAGE}')
       WHERE assigned_user_id = '1' AND deleted = 0;
     " 2>/dev/null || true
+}
+
+fetch_current_trm() {
+  local trm
+
+  trm="$(
+    curl -fsSL --retry 3 --retry-delay 2 --connect-timeout 10 "${ORQO_TRM_API_URL}" \
+      | php -r '
+          $payload = stream_get_contents(STDIN);
+          $rows = json_decode($payload, true);
+          $value = $rows[0]["valor"] ?? null;
+          if (!is_numeric($value)) {
+              exit(1);
+          }
+          printf("%.6F", (float) $value);
+        ' 2>/dev/null
+  )" || trm=""
+
+  if [[ -z "${trm}" ]]; then
+    printf '[orqo-entrypoint] %s\n' "TRM API unavailable; using fallback USD/COP rate ${ORQO_USD_TO_COP_RATE_FALLBACK}." >&2
+    trm="${ORQO_USD_TO_COP_RATE_FALLBACK}"
+  else
+    printf '[orqo-entrypoint] %s\n' "Fetched official Colombian TRM from datos.gov.co: ${trm} COP per USD." >&2
+  fi
+
+  printf '%s' "${trm}"
 }
 
 run_composer_install() {
