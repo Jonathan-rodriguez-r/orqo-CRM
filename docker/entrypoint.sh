@@ -638,18 +638,46 @@ EOF
   var BRAND = "Orqo CRM";
   var ASSET_VERSION = "20260512b";
   var aboutText = {
+    /* ── English originals ── */
     "SuiteCRM - Open source CRM for the world": "Orqo CRM - Engineering CRM para alta ingenieria, fidelizacion y PQRS",
     "SuiteCRM - Open Source CRM for the world": "Orqo CRM - Engineering CRM para alta ingenieria, fidelizacion y PQRS",
     "About SuiteCRM": "Acerca de Orqo CRM",
-    "About SuiteCRM Translations": "Traducciones de Orqo CRM",
-    "SuiteCRM is published under an open source licence - AGPLv3": "Orqo CRM se basa en una plataforma open source AGPLv3 y se personaliza para procesos de alta ingenieria.",
-    "All SuiteCRM code managed and developed by the project will be released as open source - AGPLv3": "Las extensiones propias de Orqo CRM se mantienen en la capa custom para conservar compatibilidad de actualizacion.",
-    "SuiteCRM support is available in both free and paid-for options": "El soporte operativo de Orqo CRM se gestiona por el equipo de arquitectura y SRE del proyecto.",
+    "About SuiteCRM Translations": "Sobre las traducciones de Orqo CRM",
+    "SuiteCRM is published under an open source licence - AGPLv3": "Orqo CRM se apoya en plataforma open source AGPLv3, personalizada para procesos de alta ingenieria.",
+    "All SuiteCRM code managed and developed by the project will be released as open source - AGPLv3": "Las extensiones propias de Orqo CRM se mantienen en capa custom para conservar compatibilidad de actualizacion.",
+    "SuiteCRM support is available in both free and paid-for options": "El soporte operativo de Orqo CRM es gestionado por el equipo de arquitectura y SRE del proyecto.",
     "Collaborative translation by the SuiteCRM Community": "Localizacion gestionada para la operacion de Orqo CRM.",
     "Translation created using Crowdin": "Traducciones adaptadas para Orqo CRM.",
     "We have loyal SuiteCRM partners who are passionate about open source. To view our full partner list, see our website.": "Orqo CRM integra capacidades de CRM, fidelizacion, PQRS y arquitectura de software para equipos de alta exigencia.",
     "SuiteCRM LOGO Provided by Conscious Solutions": "Identidad visual Orqo CRM.",
-    "SugarCRM Inc - providers of CE framework": "Base CRM legacy compatible con el ecosistema SuiteCRM."
+    "SugarCRM Inc - providers of CE framework": "Motor CRM base: SuiteCRM — plataforma open source AGPLv3.",
+    "Contributors": "Tecnologia base",
+    "Partners": "Plataforma Orqo",
+    /* ── Spanish (es_ES language pack) ── */
+    "SuiteCRM - CRM de Fuentes Abiertas para el mundo": "Orqo CRM - Engineering CRM para alta ingenieria, fidelizacion y PQRS",
+    "Acerca de SuiteCRM": "Acerca de Orqo CRM",
+    "Sobre las traducciones de SuiteCRM": "Localizacion de Orqo CRM",
+    "SuiteCRM es publicado bajo licencia open source - GPL3": "Orqo CRM se apoya en plataforma open source AGPLv3, personalizada para procesos de alta ingenieria.",
+    "Todo el codigo de SuiteCRM desarrollado y administrado por el proyecto sera lanzado como open source - GPL3": "Las extensiones propias de Orqo CRM se mantienen en capa custom para conservar compatibilidad de actualizacion.",
+    "Todo el c\u00f3digo de SuiteCRM desarrollado y administrado por el proyecto ser\u00e1 lanzado como open source - GPL3": "Las extensiones propias de Orqo CRM se mantienen en capa custom para conservar compatibilidad de actualizacion.",
+    "El soporte sobre SuiteCRM esta disponible tanto de forma gratuita como paga": "El soporte operativo de Orqo CRM es gestionado por el equipo de arquitectura y SRE del proyecto.",
+    "El soporte sobre SuiteCRM est\u00e1 disponible tanto de forma gratuita como paga": "El soporte operativo de Orqo CRM es gestionado por el equipo de arquitectura y SRE del proyecto.",
+    "Los modulos de AOS, AOW, AOR, AOP, AOE y Replanificacion son de SalesAgility.": "Motor CRM: SuiteCRM \u2014 plataforma open source AGPLv3.",
+    "Los m\u00f3dulos de AOS, AOW, AOR, AOP, AOE y Replanificaci\u00f3n son de SalesAgility.": "Motor CRM: SuiteCRM \u2014 plataforma open source AGPLv3.",
+    "SecuritySuite por Jason Eggers": "Seguridad y control de acceso gestionados por el equipo Orqo.",
+    "JJWDesign Google Maps por Jeffrey J. Walters": "Integracion de mapas configurada para operacion colombiana.",
+    "SuiteCRM LOGO provisto por Conscious Solutions": "Identidad visual Orqo CRM.",
+    "Contribucion a la version 7.3 de SuiteCRM por ResponseTap": "Modulos de comunicacion configurados para el contexto Orqo.",
+    "Contribuci\u00f3n a la versi\u00f3n 7.3 de SuiteCRM por ResponseTap": "M\u00f3dulos de comunicaci\u00f3n configurados para el contexto Orqo.",
+    "SugarCRM Inc - proveedores de framework CE": "Motor CRM base: SuiteCRM \u2014 plataforma open source AGPLv3.",
+    "Campos calculados de flujo de trabajo aportados por diligent technology & business consulting GmbH": "Workflows AOW configurados para escalamiento de PQRS y fidelizacion.",
+    "Traduccion en colaboracion por la comunidad de SuiteCRM": "Localizacion gestionada para la operacion de Orqo CRM.",
+    "Traducci\u00f3n en colaboraci\u00f3n por la comunidad de SuiteCRM": "Localizaci\u00f3n gestionada para la operaci\u00f3n de Orqo CRM.",
+    "Traduccion creada usando Crowdin": "Traducciones adaptadas para Orqo CRM.",
+    "Traducci\u00f3n creada usando Crowdin": "Traducciones adaptadas para Orqo CRM.",
+    "Tenemos leales partners de SuiteCRM entusiastas del open source. Para ver nuestra lista completa de partners, vea nuestro website.": "Orqo CRM integra capacidades de CRM, fidelizacion, PQRS y arquitectura de software para equipos de alta exigencia.",
+    "Contribuidores": "Tecnologia base",
+    "Socios": "Plataforma Orqo"
   };
 
   var textRules = [
@@ -779,6 +807,16 @@ EOF
     patchLoaders();
   }
 
+  function scheduleAboutRefresh() {
+    if (!isAboutRoute()) { return; }
+    var attempts = 0;
+    var timer = setInterval(function () {
+      applyBranding();
+      attempts++;
+      if (attempts >= 10) { clearInterval(timer); }
+    }, 350);
+  }
+
   function start() {
     applyBranding();
 
@@ -792,7 +830,12 @@ EOF
       characterData: true
     });
 
-    window.addEventListener("hashchange", applyBranding);
+    window.addEventListener("hashchange", function () {
+      applyBranding();
+      scheduleAboutRefresh();
+    });
+
+    scheduleAboutRefresh();
   }
 
   if (document.readyState === "loading") {
