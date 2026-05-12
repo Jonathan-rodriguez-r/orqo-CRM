@@ -793,36 +793,74 @@ EOF
   }
 
   function patchDropdownHover() {
-    document.querySelectorAll('.dropdown-menu li a, .dropdown-menu a').forEach(function (link) {
-      if (link._orqoHover) { return; }
-      link._orqoHover = true;
-      link.addEventListener('mouseenter', function () {
-        this.style.setProperty('background-color', '#1A8A55', 'important');
-        this.style.setProperty('color', '#ffffff', 'important');
-      });
-      link.addEventListener('mouseleave', function () {
-        this.style.removeProperty('background-color');
-        this.style.setProperty('color', '#e8f0ec', 'important');
-      });
+    if (document._orqoDropHover) { return; }
+    document._orqoDropHover = true;
+
+    function isInsideDropdown(el) {
+      for (var i = 0; i < 6 && el && el !== document.body; i++) {
+        if (el.tagName === 'A' || el.tagName === 'LI') {
+          var p = el.parentElement;
+          if (p && p.classList && p.classList.contains('dropdown-menu')) {
+            return el.tagName === 'A' ? el : p.querySelector('a');
+          }
+        }
+        el = el.parentElement;
+      }
+      return null;
+    }
+
+    document.addEventListener('mouseover', function (e) {
+      var link = isInsideDropdown(e.target);
+      if (link) {
+        link.style.setProperty('background-color', '#1A8A55', 'important');
+        link.style.setProperty('color', '#ffffff', 'important');
+      }
+    });
+
+    document.addEventListener('mouseout', function (e) {
+      var link = isInsideDropdown(e.target);
+      if (link) {
+        link.style.removeProperty('background-color');
+        link.style.setProperty('color', '#e8f0ec', 'important');
+      }
     });
   }
 
-  function patchCoralElements() {
-    var els = document.querySelectorAll('body *');
-    for (var i = 0; i < els.length; i++) {
-      var el = els[i];
-      if (el._orqoCoralChecked) { continue; }
-      el._orqoCoralChecked = true;
-      var bg = window.getComputedStyle(el).backgroundColor;
-      var m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-      if (!m) { continue; }
-      var r = +m[1], g = +m[2], b = +m[3];
-      if (r > 180 && g < 130 && b < 130 && r > g + 60) {
-        el.style.setProperty('background-color', '#1A8A55', 'important');
-        el.style.setProperty('color', '#ffffff', 'important');
-        el.style.setProperty('border-color', '#176647', 'important');
+  function patchNotificationBanner() {
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    var node;
+    while ((node = walker.nextNode())) {
+      var val = node.nodeValue ? node.nodeValue.trim() : '';
+      if (val.indexOf('Nota:') !== 0 && val.indexOf('Note:') !== 0) { continue; }
+      var el = node.parentElement;
+      for (var i = 0; i < 8 && el && el !== document.body; i++) {
+        var bg = window.getComputedStyle(el).backgroundColor;
+        if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') {
+          el.style.setProperty('background-color', '#1A8A55', 'important');
+          el.style.setProperty('color', '#ffffff', 'important');
+          el.style.setProperty('border-color', '#176647', 'important');
+          el.style.setProperty('border-left', 'none', 'important');
+          break;
+        }
+        el = el.parentElement;
       }
     }
+  }
+
+  function watchHead() {
+    if (document._orqoHeadWatcher || !document.head) { return; }
+    document._orqoHeadWatcher = true;
+    new MutationObserver(function (mutations) {
+      for (var i = 0; i < mutations.length; i++) {
+        var added = mutations[i].addedNodes;
+        for (var j = 0; j < added.length; j++) {
+          if (added[j].tagName === 'STYLE' && added[j].id !== 'orqo-color-overrides') {
+            injectColorStyles();
+            return;
+          }
+        }
+      }
+    }).observe(document.head, { childList: true });
   }
 
   function isAboutRoute() {
@@ -1003,7 +1041,7 @@ EOF
     patchLoaders();
     replaceAboutPage();
     patchDropdownHover();
-    patchCoralElements();
+    patchNotificationBanner();
   }
 
   function scheduleAboutRefresh() {
@@ -1017,6 +1055,7 @@ EOF
   }
 
   function start() {
+    watchHead();
     injectColorStyles();
     applyBranding();
 
