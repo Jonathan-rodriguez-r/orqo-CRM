@@ -6,7 +6,6 @@ ENV APP_DIR=/var/www/html \
     APP_ENV=prod \
     APP_DEBUG=0 \
     PHP_TIMEZONE=America/Bogota \
-    APP_RUNTIME_OPTIONS="{\"project_dir\":\"/var/www/html\"}" \
     SUITECRM_VERSION=8.8.1 \
     APACHE_DOCUMENT_ROOT=/var/www/html/public
 

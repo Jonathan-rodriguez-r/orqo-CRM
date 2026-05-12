@@ -6,7 +6,6 @@ WEB_USER="${APACHE_RUN_USER:-www-data}"
 WEB_GROUP="${APACHE_RUN_GROUP:-www-data}"
 HTTP_PORT="${HTTP_PORT:-80}"
 PERSIST_ROOT="${PERSIST_ROOT:-}"
-export APP_RUNTIME_OPTIONS="${APP_RUNTIME_OPTIONS:-{\"project_dir\":\"${APP_DIR}\"}}"
 
 SUITECRM_VERSION="${SUITECRM_VERSION:-8.8.1}"
 SUITECRM_DOWNLOAD_URL="${SUITECRM_DOWNLOAD_URL:-https://sourceforge.net/projects/suitecrm/files/SuiteCRM-${SUITECRM_VERSION}.zip/download}"
