@@ -16,6 +16,27 @@
   background-color: var(--orqo-ink) !important;
 }
 
+.navbar,
+.navbar-inverse {
+  min-height: 46px !important;
+  height: 46px !important;
+  overflow: visible !important;
+}
+
+.navbar-brand,
+.navbar-header,
+.navbar img[src*="company_logo"],
+header img[src*="company_logo"] {
+  height: 34px !important;
+  max-height: 34px !important;
+  width: auto !important;
+  max-width: 150px !important;
+  object-fit: contain !important;
+  margin: 6px 12px !important;
+  position: static !important;
+  transform: none !important;
+}
+
 .navbar a,
 .navbar .dropdown-toggle,
 .navbar-inverse .navbar-nav > li > a {
@@ -47,4 +68,10 @@ input[type="submit"].button:hover {
 .detail-view h4,
 .edit-view h4 {
   color: var(--orqo-ink) !important;
+}
+
+footer,
+.footer,
+.login-footer {
+  color: #5f6470 !important;
 }

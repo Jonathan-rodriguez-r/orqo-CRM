@@ -133,8 +133,16 @@ apply_orqo_overlay() {
     cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/company_logo.png" \
       "${APP_DIR}/public/legacy/themes/default/images/company_logo.png" 2>/dev/null || true
     cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/company_logo.png" \
+      "${APP_DIR}/public/legacy/themes/suite8/images/login_logo.png" 2>/dev/null || true
+
+    local header_logo="${APP_DIR}/public/legacy/custom/themes/default/images/company_logo_white.png"
+    if [[ ! -f "${header_logo}" ]]; then
+      header_logo="${APP_DIR}/public/legacy/custom/themes/default/images/company_logo.png"
+    fi
+
+    cp -f "${header_logo}" \
       "${APP_DIR}/public/legacy/themes/SuiteP/images/company_logo.png" 2>/dev/null || true
-    cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/company_logo.png" \
+    cp -f "${header_logo}" \
       "${APP_DIR}/public/legacy/themes/suite8/images/company_logo.png" 2>/dev/null || true
   fi
 }
@@ -151,6 +159,10 @@ replace_visible_suitecrm_branding() {
     \) -exec sed -i \
       -e "s/SuiteCRM/${ORQO_BRAND_NAME}/g" \
       -e "s/Suite CRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/SugarCRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/Sugar CRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/Powered By ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
+      -e "s/Powered by ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       {} +
   fi
 
@@ -164,6 +176,37 @@ replace_visible_suitecrm_branding() {
 /* ORQO_CRM_BRANDING_START */
 body {
   background: #f7f3ec;
+}
+
+body .navbar,
+body .navbar-inverse,
+body app-navbar,
+body scrm-navbar,
+body .topnav {
+  min-height: 46px !important;
+  height: 46px !important;
+  background: #554f68 !important;
+  overflow: visible !important;
+}
+
+body .navbar-brand,
+body .navbar-header,
+body .navbar .logo,
+body .navbar img[src*="company_logo"],
+body header img[src*="company_logo"] {
+  height: 34px !important;
+  max-height: 34px !important;
+  width: auto !important;
+  max-width: 150px !important;
+  object-fit: contain !important;
+  margin: 6px 12px !important;
+  position: static !important;
+  transform: none !important;
+}
+
+body .navbar-brand *,
+body .navbar-header * {
+  line-height: 46px !important;
 }
 
 body::before {
@@ -204,8 +247,14 @@ button[type="submit"]:hover,
 }
 
 img[src*="company_logo"] {
-  max-width: 300px !important;
+  max-width: 360px !important;
   height: auto !important;
+}
+
+footer,
+.footer,
+.login-footer {
+  color: #5f6470 !important;
 }
 /* ORQO_CRM_BRANDING_END */
 EOF
@@ -215,6 +264,10 @@ EOF
     sed -i \
       -e "s/SuiteCRM/${ORQO_BRAND_NAME}/g" \
       -e "s/Suite CRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/SugarCRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/Sugar CRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/Powered By ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
+      -e "s/Powered by ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       public/site.webmanifest
   fi
 
@@ -222,8 +275,22 @@ EOF
     sed -i \
       -e "s/SuiteCRM/${ORQO_BRAND_NAME}/g" \
       -e "s/Suite CRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/SugarCRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/Sugar CRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/Powered By ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
+      -e "s/Powered by ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       public/legacy/themes/suite8/tpls/_head.tpl
   fi
+
+  find public/legacy -type f \( -name '*.tpl' -o -name '*.php' -o -name '*.js' -o -name '*.html' \) \
+    -path '*/cache/*' -prune -o -type f -exec sed -i \
+      -e "s/SuiteCRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/Suite CRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/SugarCRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/Sugar CRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/Powered By ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
+      -e "s/Powered by ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
+      {} + 2>/dev/null || true
 }
 
 install_spanish_language_pack_if_needed() {
