@@ -19,6 +19,7 @@ ADMIN_USER="${ADMIN_USER:-admin}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-ChangeMe123!}"
 SITE_URL="${SITE_URL:-http://localhost:${HTTP_PORT}}"
 DEMO_DATA="${DEMO_DATA:-no}"
+RESET_ADMIN_PASSWORD="${RESET_ADMIN_PASSWORD:-}"
 
 log() {
   printf '[orqo-entrypoint] %s\n' "$*"
@@ -310,6 +311,42 @@ install_suitecrm_if_needed() {
   write_runtime_env
 }
 
+reset_admin_password_if_requested() {
+  if [[ -z "${RESET_ADMIN_PASSWORD}" ]]; then
+    return
+  fi
+
+  if ! database_has_suitecrm; then
+    return
+  fi
+
+  log "Resetting SuiteCRM admin password from RESET_ADMIN_PASSWORD."
+
+  local password_hash
+  password_hash="$(
+    RESET_ADMIN_PASSWORD="${RESET_ADMIN_PASSWORD}" php -r 'echo password_hash(strtolower(md5(getenv("RESET_ADMIN_PASSWORD"))), PASSWORD_DEFAULT);'
+  )"
+
+  MYSQL_PWD="${DB_PASSWORD}" mysql \
+    --host="${DB_HOST}" \
+    --port="${DB_PORT}" \
+    --user="${DB_USER}" \
+    --database="${DB_NAME}" \
+    --execute="
+      UPDATE users
+      SET
+        user_hash = '${password_hash}',
+        status = 'Active',
+        deleted = 0,
+        is_admin = 1,
+        sugar_login = 1,
+        external_auth_only = 0,
+        system_generated_password = 0,
+        pwd_last_changed = NOW()
+      WHERE id = '1' OR user_name = 'admin';
+    "
+}
+
 main() {
   configure_runtime
   download_suitecrm_if_needed
@@ -318,6 +355,7 @@ main() {
   run_composer_install
   ensure_permissions
   install_suitecrm_if_needed "$@"
+  reset_admin_password_if_requested
   ensure_permissions
 
   exec "$@"
