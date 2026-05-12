@@ -348,6 +348,45 @@ app-loading * {
   visibility: hidden !important;
 }
 
+body .app-overlay,
+body app-full-page-spinner .app-overlay,
+body scrm-full-page-spinner .app-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(247, 243, 236, 0.94) !important;
+  z-index: 99999 !important;
+}
+
+body .app-overlay::after,
+body app-full-page-spinner .app-overlay::after,
+body scrm-full-page-spinner .app-overlay::after {
+  content: "" !important;
+  width: 88px !important;
+  height: 88px !important;
+  background: url("/legacy/themes/suite8/images/orqo-icon.png?v=20260512c") center / contain no-repeat !important;
+  animation: orqo-loader-pulse 1.2s ease-in-out infinite !important;
+  display: block !important;
+}
+
+body .app-overlay #overlay-spinner,
+body .app-overlay .spinner,
+body .app-overlay [class*="spinner"],
+body .app-overlay [class*="Spinner"],
+body .app-overlay [class*="cube"],
+body .app-overlay [class*="Cube"],
+body .app-overlay [class*="square"],
+body .app-overlay [class*="Square"],
+body .app-overlay [class*="rect"],
+body .app-overlay [class*="Rect"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
 @keyframes orqo-loader-pulse {
   0% {
     opacity: 0.58;
@@ -470,6 +509,45 @@ install_orqo_runtime_branding_patch() {
 .orqo-loader-host [class*="rect"],
 .orqo-loader-host [class*="Rect"],
 .orqo-loader-piece {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body .app-overlay,
+body app-full-page-spinner .app-overlay,
+body scrm-full-page-spinner .app-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(247, 243, 236, 0.94) !important;
+  z-index: 99999 !important;
+}
+
+body .app-overlay::after,
+body app-full-page-spinner .app-overlay::after,
+body scrm-full-page-spinner .app-overlay::after {
+  content: "" !important;
+  width: 88px !important;
+  height: 88px !important;
+  background: url("/legacy/themes/suite8/images/orqo-icon.png?v=20260512c") center / contain no-repeat !important;
+  animation: orqo-loader-orbit 1.2s ease-in-out infinite !important;
+  display: block !important;
+}
+
+body .app-overlay #overlay-spinner,
+body .app-overlay .spinner,
+body .app-overlay [class*="spinner"],
+body .app-overlay [class*="Spinner"],
+body .app-overlay [class*="cube"],
+body .app-overlay [class*="Cube"],
+body .app-overlay [class*="square"],
+body .app-overlay [class*="Square"],
+body .app-overlay [class*="rect"],
+body .app-overlay [class*="Rect"] {
   opacity: 0 !important;
   visibility: hidden !important;
   background: transparent !important;
@@ -709,6 +787,24 @@ EOF
       printf '\n<script src="/orqo-branding-runtime.js?v=%s" defer></script>\n' "${version}" >> public/index.html
     fi
   fi
+}
+
+refresh_orqo_ui_cache() {
+  log "Refreshing Orqo CRM UI language and branding cache."
+
+  rm -rf \
+    public/legacy/cache/jsLanguage/Home \
+    public/legacy/cache/jsLanguage/application \
+    public/legacy/cache/themes \
+    public/legacy/cache/smarty/templates_c/* \
+    2>/dev/null || true
+
+  find public/legacy/cache -type f \( \
+    -name '*Home*en_us*' -o \
+    -name '*Home*es_ES*' -o \
+    -name '*suitecrm*' -o \
+    -name '*SuiteCRM*' \
+  \) -delete 2>/dev/null || true
 }
 
 install_spanish_language_pack_if_needed() {
@@ -1170,6 +1266,7 @@ main() {
   repair_core_branding_side_effects
   replace_visible_suitecrm_branding
   install_orqo_runtime_branding_patch
+  refresh_orqo_ui_cache
   run_composer_install
   ensure_permissions
   install_suitecrm_if_needed "$@"

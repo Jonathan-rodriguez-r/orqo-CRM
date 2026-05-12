@@ -141,6 +141,45 @@ app-loading * {
   visibility: hidden !important;
 }
 
+body .app-overlay,
+body app-full-page-spinner .app-overlay,
+body scrm-full-page-spinner .app-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(247, 243, 236, 0.94) !important;
+  z-index: 99999 !important;
+}
+
+body .app-overlay::after,
+body app-full-page-spinner .app-overlay::after,
+body scrm-full-page-spinner .app-overlay::after {
+  content: "" !important;
+  width: 88px !important;
+  height: 88px !important;
+  background: url("/legacy/themes/suite8/images/orqo-icon.png?v=20260512c") center / contain no-repeat !important;
+  animation: orqo-loader-pulse 1.2s ease-in-out infinite !important;
+  display: block !important;
+}
+
+body .app-overlay #overlay-spinner,
+body .app-overlay .spinner,
+body .app-overlay [class*="spinner"],
+body .app-overlay [class*="Spinner"],
+body .app-overlay [class*="cube"],
+body .app-overlay [class*="Cube"],
+body .app-overlay [class*="square"],
+body .app-overlay [class*="Square"],
+body .app-overlay [class*="rect"],
+body .app-overlay [class*="Rect"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
 @keyframes orqo-loader-pulse {
   0% {
     opacity: 0.58;
