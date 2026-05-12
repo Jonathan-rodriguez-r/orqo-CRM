@@ -9,6 +9,13 @@
   --orqo-surface: #f7f3ec;
 }
 
+body,
+.sugar_body_td,
+#content,
+.container-fluid {
+  background-color: #F5F5F2 !important;
+}
+
 .navbar,
 .navbar-inverse,
 .suitepicon-action-home,

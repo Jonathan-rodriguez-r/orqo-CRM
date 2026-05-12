@@ -1104,34 +1104,107 @@ EOF
 }
 
 patch_legacy_theme_colors() {
-  log "Patching SuiteP/suite8 theme source colors."
+  log "Injecting Orqo color overrides into legacy theme CSS source."
 
-  local theme_dirs=(
-    "public/legacy/themes/SuiteP"
-    "public/legacy/themes/suite8"
-  )
+  _orqo_append_css() {
+    local target="$1"
+    [[ -f "${target}" ]] || return
+    grep -q "Orqo CRM color overrides" "${target}" 2>/dev/null && return
+    cat >> "${target}" <<'ORQO_APPEND_END'
 
-  for theme_dir in "${theme_dirs[@]}"; do
-    [[ -d "${theme_dir}" ]] || continue
+/* === Orqo CRM color overrides === */
+body, .sugar_body_td, #content, .container-fluid {
+  background-color: #F5F5F2 !important;
+}
+.navbar, .navbar-inverse, .navbar-default, #toolbar, #topnav {
+  background-color: #2E4038 !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  overflow: visible !important;
+}
+.navbar a, .navbar .dropdown-toggle,
+.navbar-inverse .navbar-nav > li > a,
+.navbar-default .navbar-nav > li > a {
+  color: #ffffff !important;
+}
+.navbar .active > a,
+.navbar .active > a:hover,
+.navbar .active > a:focus,
+.navbar-nav > .active > a,
+.navbar-nav > .active > a:hover,
+.navbar-nav > .active > a:focus,
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus {
+  background-color: #F5F5F2 !important;
+  color: #2E4038 !important;
+  border: none !important;
+  box-shadow: none !important;
+  max-height: 46px !important;
+  overflow: hidden !important;
+}
+.navbar .active > a *,
+.navbar-nav > .active > a * {
+  color: #2E4038 !important;
+}
+.navbar .open > a,
+.navbar .open > a:hover,
+.navbar .open > a:focus,
+.navbar-default .navbar-nav .open > a {
+  background-color: #1A8A55 !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.navbar .dropdown-menu,
+.navbar-default .dropdown-menu,
+.navbar-inverse .dropdown-menu,
+.navbar-default .navbar-nav .open .dropdown-menu {
+  background-color: #2E4038 !important;
+  border: none !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35) !important;
+}
+.navbar .dropdown-menu > li > a,
+.navbar-default .dropdown-menu > li > a,
+.navbar-default .navbar-nav .open .dropdown-menu > li > a {
+  color: #e8f0ec !important;
+}
+.navbar .dropdown-menu > li > a:hover,
+.navbar .dropdown-menu > li > a:focus,
+.navbar-default .dropdown-menu > li > a:hover,
+.navbar-default .dropdown-menu > li > a:focus,
+.navbar-default .navbar-nav .open .dropdown-menu > li > a:hover {
+  background-color: #1A8A55 !important;
+  color: #ffffff !important;
+}
+.btn-primary, .btn-default, .button.primary, input[type="submit"] {
+  background-color: #1A8A55 !important;
+  border-color: #1A8A55 !important;
+  color: #ffffff !important;
+}
+.btn-primary:hover, .btn-default:hover, input[type="submit"]:hover {
+  background-color: #176647 !important;
+  border-color: #176647 !important;
+}
+.alert, .alert-warning, .alert-danger, .alert-error, .alert-info,
+.errorOccurred, #notify_messages, .notify_message {
+  background-color: #1A8A55 !important;
+  border-color: #176647 !important;
+  color: #ffffff !important;
+}
+.moduleTitle h2, .detail-view h4, .edit-view h4, h2.moduleTitle {
+  color: #2E4038 !important;
+}
+footer, .footer, .login-footer {
+  color: #5f6470 !important;
+}
+ORQO_APPEND_END
+  }
 
-    find "${theme_dir}" -type f \( -name "*.css" -o -name "*.scss" \) | while read -r f; do
-      # Replace common SuiteP coral/orange action colors with Orqo green
-      sed -i \
-        -e 's/#[Ee][Cc][5][Bb][4][Ff]/#1A8A55/g' \
-        -e 's/#[Dd][9][5][3][4][Ff]/#1A8A55/g' \
-        -e 's/#[Cc][9][3][0][2][Cc]/#176647/g' \
-        -e 's/#[Ff][5][5][4][3][Dd]/#1A8A55/g' \
-        -e 's/#[Ee][85][56][2-9][0-9a-fA-F]/#1A8A55/g' \
-        -e 's/#[Ff][3-9][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]/#1A8A55/g' \
-        "${f}" 2>/dev/null || true
-    done
-  done
+  _orqo_append_css "public/legacy/themes/SuiteP/css/Dawn/style.css"
+  _orqo_append_css "public/legacy/themes/suite8/css/Dawn/style.css"
 
-  # Clear compiled theme cache so SuiteCRM regenerates from patched sources
-  rm -rf \
-    public/legacy/cache/themes/SuiteP \
-    public/legacy/cache/themes/suite8 \
-    2>/dev/null || true
+  rm -rf public/legacy/cache/themes/SuiteP public/legacy/cache/themes/suite8 2>/dev/null || true
 }
 
 refresh_orqo_ui_cache() {

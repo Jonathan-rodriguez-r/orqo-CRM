@@ -10,6 +10,14 @@
   --orqo-surface: #f7f3ec;
 }
 
+/* ── Body background ── */
+body,
+.sugar_body_td,
+#content,
+.container-fluid {
+  background-color: #F5F5F2 !important;
+}
+
 /* ── Navbar / toolbar ── */
 .navbar,
 .navbar-inverse,
