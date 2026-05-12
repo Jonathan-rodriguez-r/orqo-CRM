@@ -42,7 +42,13 @@ configure_runtime() {
 }
 
 is_app_empty() {
-  [[ -z "$(find "${APP_DIR}" -mindepth 1 -maxdepth 1 ! -name '.gitkeep' -print -quit 2>/dev/null)" ]]
+  [[ -z "$(find "${APP_DIR}" -mindepth 1 -maxdepth 1 \
+    ! -name '.gitkeep' \
+    ! -name 'tmp' \
+    ! -name 'logs' \
+    ! -name 'var' \
+    ! -name 'public' \
+    -print -quit 2>/dev/null)" ]]
 }
 
 download_suitecrm_if_needed() {
