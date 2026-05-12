@@ -186,6 +186,7 @@ replace_visible_suitecrm_branding() {
       -e "s/Sugar CRM/${ORQO_BRAND_NAME}/g" \
       -e "s/SalesAgility/Orqo/g" \
       -e "s/Open Source CRM/Engineering CRM/g" \
+      -e "s/Open source CRM/Engineering CRM/g" \
       -e "s/Powered By ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       -e "s/Powered by ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       {} +
@@ -329,7 +330,7 @@ app-loading::before {
   width: 82px !important;
   height: 82px !important;
   margin: -41px 0 0 -41px !important;
-  background: url("/legacy/themes/suite8/images/orqo-icon.png") center / contain no-repeat !important;
+  background: url("/legacy/themes/suite8/images/orqo-icon.png?v=20260512b") center / contain no-repeat !important;
   animation: orqo-loader-pulse 1.35s ease-in-out infinite !important;
   z-index: 20 !important;
 }
@@ -378,6 +379,7 @@ EOF
       -e "s/Sugar CRM/${ORQO_BRAND_NAME}/g" \
       -e "s/SalesAgility/Orqo/g" \
       -e "s/Open Source CRM/Engineering CRM/g" \
+      -e "s/Open source CRM/Engineering CRM/g" \
       -e "s/Powered By ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       -e "s/Powered by ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       public/site.webmanifest
@@ -391,6 +393,7 @@ EOF
       -e "s/Sugar CRM/${ORQO_BRAND_NAME}/g" \
       -e "s/SalesAgility/Orqo/g" \
       -e "s/Open Source CRM/Engineering CRM/g" \
+      -e "s/Open source CRM/Engineering CRM/g" \
       -e "s/Powered By ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       -e "s/Powered by ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       public/legacy/themes/suite8/tpls/_head.tpl
@@ -404,6 +407,7 @@ EOF
       -e "s/Sugar CRM/${ORQO_BRAND_NAME}/g" \
       -e "s/SalesAgility/Orqo/g" \
       -e "s/Open Source CRM/Engineering CRM/g" \
+      -e "s/Open source CRM/Engineering CRM/g" \
       -e "s/Powered By ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       -e "s/Powered by ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       {} + 2>/dev/null || true
@@ -422,6 +426,289 @@ repair_core_branding_side_effects() {
       -e 's/Orqo CRM_/SugarCRM_/g' \
       -e 's/Orqo CRM::/SugarCRM::/g' \
       {} + 2>/dev/null || true
+}
+
+install_orqo_runtime_branding_patch() {
+  local version="${ORQO_BRANDING_ASSET_VERSION:-20260512b}"
+
+  log "Installing Orqo CRM runtime branding patch."
+
+  cat > public/orqo-branding-runtime.css <<'EOF'
+/* ORQO_RUNTIME_BRANDING_START */
+:root {
+  --orqo-ink: #161c2d;
+  --orqo-coral: #ec5b4f;
+  --orqo-teal: #00c784;
+  --orqo-muted: #7c8a8a;
+}
+
+.orqo-loader-host {
+  position: relative !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.orqo-loader-host::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: 86px !important;
+  height: 86px !important;
+  margin: -43px 0 0 -43px !important;
+  background: url("/legacy/themes/suite8/images/orqo-icon.png?v=20260512b") center / contain no-repeat !important;
+  animation: orqo-loader-orbit 1.2s ease-in-out infinite !important;
+  z-index: 9999 !important;
+  pointer-events: none !important;
+}
+
+.orqo-loader-host > *,
+.orqo-loader-host [class*="cube"],
+.orqo-loader-host [class*="Cube"],
+.orqo-loader-host [class*="square"],
+.orqo-loader-host [class*="Square"],
+.orqo-loader-host [class*="rect"],
+.orqo-loader-host [class*="Rect"],
+.orqo-loader-piece {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.sk-cube-grid,
+.cube-grid,
+.sk-spinner,
+.scrm-loader,
+.suitecrm-loader,
+[class*="suite-loader"],
+[class*="SuiteLoader"] {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.orqo-about-logo {
+  display: block !important;
+  width: min(420px, 78vw) !important;
+  height: auto !important;
+  margin: 0 0 2rem !important;
+}
+
+.orqo-about-title {
+  color: var(--orqo-ink) !important;
+  font-weight: 600 !important;
+}
+
+@keyframes orqo-loader-orbit {
+  0% {
+    opacity: 0.56;
+    transform: scale(0.92) rotate(-8deg);
+    filter: drop-shadow(0 0 0 rgba(0, 199, 132, 0));
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.05) rotate(0deg);
+    filter: drop-shadow(0 0 18px rgba(0, 199, 132, 0.28));
+  }
+
+  100% {
+    opacity: 0.56;
+    transform: scale(0.92) rotate(8deg);
+    filter: drop-shadow(0 0 0 rgba(0, 199, 132, 0));
+  }
+}
+/* ORQO_RUNTIME_BRANDING_END */
+EOF
+
+  cat > public/orqo-branding-runtime.js <<'EOF'
+(function () {
+  "use strict";
+
+  var BRAND = "Orqo CRM";
+  var ASSET_VERSION = "20260512b";
+  var aboutText = {
+    "SuiteCRM - Open source CRM for the world": "Orqo CRM - Engineering CRM para alta ingenieria, fidelizacion y PQRS",
+    "SuiteCRM - Open Source CRM for the world": "Orqo CRM - Engineering CRM para alta ingenieria, fidelizacion y PQRS",
+    "About SuiteCRM": "Acerca de Orqo CRM",
+    "About SuiteCRM Translations": "Traducciones de Orqo CRM",
+    "SuiteCRM is published under an open source licence - AGPLv3": "Orqo CRM se basa en una plataforma open source AGPLv3 y se personaliza para procesos de alta ingenieria.",
+    "All SuiteCRM code managed and developed by the project will be released as open source - AGPLv3": "Las extensiones propias de Orqo CRM se mantienen en la capa custom para conservar compatibilidad de actualizacion.",
+    "SuiteCRM support is available in both free and paid-for options": "El soporte operativo de Orqo CRM se gestiona por el equipo de arquitectura y SRE del proyecto.",
+    "Collaborative translation by the SuiteCRM Community": "Localizacion gestionada para la operacion de Orqo CRM.",
+    "Translation created using Crowdin": "Traducciones adaptadas para Orqo CRM.",
+    "We have loyal SuiteCRM partners who are passionate about open source. To view our full partner list, see our website.": "Orqo CRM integra capacidades de CRM, fidelizacion, PQRS y arquitectura de software para equipos de alta exigencia.",
+    "SuiteCRM LOGO Provided by Conscious Solutions": "Identidad visual Orqo CRM.",
+    "SugarCRM Inc - providers of CE framework": "Base CRM legacy compatible con el ecosistema SuiteCRM."
+  };
+
+  var textRules = [
+    [/Suite\s*CRM/g, BRAND],
+    [/SuiteCRM/g, BRAND],
+    [/SugarCRM/g, BRAND],
+    [/Sugar\s*CRM/g, BRAND],
+    [/SalesAgility/g, "Orqo"]
+  ];
+
+  function isAboutRoute() {
+    return window.location.hash.indexOf("/home/about") !== -1;
+  }
+
+  function replaceTextNode(node) {
+    var value = node.nodeValue;
+    var trimmed = value.trim();
+    var next = value;
+
+    if (aboutText[trimmed]) {
+      next = value.replace(trimmed, aboutText[trimmed]);
+    }
+
+    textRules.forEach(function (rule) {
+      next = next.replace(rule[0], rule[1]);
+    });
+
+    if (next !== value) {
+      node.nodeValue = next;
+    }
+  }
+
+  function walkText(root) {
+    if (!root) {
+      return;
+    }
+
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (node) {
+        if (!node.nodeValue || !node.nodeValue.trim()) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+
+    var node;
+    while ((node = walker.nextNode())) {
+      replaceTextNode(node);
+    }
+  }
+
+  function patchLogos() {
+    var logo = isAboutRoute()
+      ? "/legacy/themes/suite8/images/company_logo.png"
+      : "/legacy/themes/suite8/images/company_logo_white.png";
+
+    document.querySelectorAll('img[src*="company_logo"], img[src*="suitecrm"], img[alt*="Suite"]').forEach(function (img) {
+      img.src = logo + "?v=" + ASSET_VERSION;
+      img.alt = BRAND;
+      if (isAboutRoute()) {
+        img.classList.add("orqo-about-logo");
+      }
+    });
+  }
+
+  function patchAboutHeadings() {
+    if (!isAboutRoute()) {
+      return;
+    }
+
+    document.querySelectorAll("h1, h2, h3").forEach(function (heading) {
+      if (heading.textContent.indexOf(BRAND) !== -1) {
+        heading.classList.add("orqo-about-title");
+      }
+    });
+  }
+
+  function patchLoaders() {
+    var selectors = [
+      ".sk-cube-grid",
+      ".cube-grid",
+      ".sk-spinner",
+      ".scrm-loader",
+      ".suitecrm-loader",
+      ".loading",
+      ".loader",
+      ".loading-screen",
+      ".loading-container",
+      ".spinner",
+      "[class*='cube-grid']",
+      "[class*='CubeGrid']",
+      "[class*='cube']",
+      "[class*='Cube']",
+      "[class*='square']",
+      "[class*='Square']",
+      "[class*='rect']",
+      "[class*='Rect']",
+      "[class*='suitecrm-loader']",
+      "[class*='SuiteCRMLoader']"
+    ];
+
+    document.querySelectorAll(selectors.join(",")).forEach(function (el) {
+      var rect = el.getBoundingClientRect();
+      if (rect.width <= 220 && rect.height <= 220) {
+        var className = String(el.className || "");
+        var isPiece = /cube|square|rect/i.test(className) && rect.width <= 80 && rect.height <= 80;
+        if (isPiece) {
+          el.classList.add("orqo-loader-piece");
+          if (el.parentElement) {
+            var parentRect = el.parentElement.getBoundingClientRect();
+            if (parentRect.width <= 240 && parentRect.height <= 240) {
+              el.parentElement.classList.add("orqo-loader-host");
+              return;
+            }
+          }
+        }
+        el.classList.add("orqo-loader-host");
+      }
+    });
+  }
+
+  function applyBranding() {
+    walkText(document.body);
+    patchLogos();
+    patchAboutHeadings();
+    patchLoaders();
+  }
+
+  function start() {
+    applyBranding();
+
+    var observer = new MutationObserver(function () {
+      window.requestAnimationFrame(applyBranding);
+    });
+
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+
+    window.addEventListener("hashchange", applyBranding);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
+  } else {
+    start();
+  }
+})();
+EOF
+
+  if [[ -f public/index.html ]]; then
+    sed -i -E \
+      -e 's#<link rel="stylesheet" href="/orqo-branding-runtime\.css\?v=[^"]*">##g' \
+      -e 's#<script src="/orqo-branding-runtime\.js\?v=[^"]*" defer></script>##g' \
+      public/index.html
+
+    if grep -q '</head>' public/index.html; then
+      sed -i "s#</head>#<link rel=\"stylesheet\" href=\"/orqo-branding-runtime.css?v=${version}\"></head>#" public/index.html
+    fi
+
+    if grep -q '</body>' public/index.html; then
+      sed -i "s#</body>#<script src=\"/orqo-branding-runtime.js?v=${version}\" defer></script></body>#" public/index.html
+    else
+      printf '\n<script src="/orqo-branding-runtime.js?v=%s" defer></script>\n' "${version}" >> public/index.html
+    fi
+  fi
 }
 
 install_spanish_language_pack_if_needed() {
@@ -882,6 +1169,7 @@ main() {
   write_legacy_branding_config
   repair_core_branding_side_effects
   replace_visible_suitecrm_branding
+  install_orqo_runtime_branding_patch
   run_composer_install
   ensure_permissions
   install_suitecrm_if_needed "$@"
