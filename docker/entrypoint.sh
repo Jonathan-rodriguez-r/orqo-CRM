@@ -114,7 +114,11 @@ apply_orqo_overlay() {
   fi
 
   log "Applying Orqo CRM custom overlay."
-  cp -a /opt/orqo-overlay/. "${APP_DIR}/"
+  mkdir -p "${APP_DIR}/public/legacy/custom"
+
+  if [[ -d /opt/orqo-overlay/public/legacy/custom ]]; then
+    cp -a /opt/orqo-overlay/public/legacy/custom/. "${APP_DIR}/public/legacy/custom/"
+  fi
 
   if [[ -f "${APP_DIR}/public/legacy/custom/themes/default/images/company_logo.png" ]]; then
     mkdir -p \
