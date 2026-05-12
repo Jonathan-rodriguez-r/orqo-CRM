@@ -30,6 +30,10 @@ configure_runtime() {
     echo "date.timezone=${PHP_TIMEZONE}" > /usr/local/etc/php/conf.d/99-orqo-timezone.ini
   fi
 
+  mkdir -p "${APP_DIR}/tmp"
+  export TMPDIR="${APP_DIR}/tmp"
+  echo "sys_temp_dir=${APP_DIR}/tmp" > /usr/local/etc/php/conf.d/98-orqo-tempdir.ini
+
   rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.*
   a2enmod mpm_prefork >/dev/null 2>&1 || true
 
@@ -159,8 +163,10 @@ ensure_permissions() {
     public/legacy/upload \
     public/legacy/custom \
     logs \
+    logs/prod \
     var/cache \
-    var/log
+    var/log \
+    tmp
 
   chmod +x bin/console 2>/dev/null || true
 
@@ -170,6 +176,7 @@ ensure_permissions() {
 
   find public/legacy/cache public/legacy/upload public/legacy/custom logs var/cache var/log -type d -exec chmod 775 {} \; 2>/dev/null || true
   find public/legacy/cache public/legacy/upload public/legacy/custom logs var/cache var/log -type f -exec chmod 664 {} \; 2>/dev/null || true
+  chmod -R 775 tmp logs public/legacy/cache var/cache var/log 2>/dev/null || true
 }
 
 wait_for_database() {
