@@ -1740,16 +1740,34 @@ seed_demo_data_if_requested() {
   fi
 
   local seeder="public/legacy/custom/orqo/seeders/demo_colombia.php"
+  local sql_seeder="public/legacy/custom/orqo/seeders/demo_colombia.sql"
 
   if [[ ! -f "${seeder}" ]]; then
     log "Demo seed requested but ${seeder} was not found."
+  else
+    log "Seeding Orqo CRM Colombia demo data through BeanFactory."
+
+    if ! php "${seeder}"; then
+      log "BeanFactory demo seed failed. Falling back to SQL seed."
+    fi
+  fi
+
+  if [[ ! -f "${sql_seeder}" ]]; then
+    log "SQL demo seed fallback not found at ${sql_seeder}."
     return
   fi
 
-  log "Seeding Orqo CRM Colombia demo data."
+  log "Ensuring Orqo CRM Colombia demo data through SQL fallback."
 
-  if ! php "${seeder}"; then
-    log "Demo seed failed. Continuing startup without blocking Apache."
+  if ! MYSQL_PWD="${DB_PASSWORD}" mysql \
+    --force \
+    --show-warnings \
+    --host="${DB_HOST}" \
+    --port="${DB_PORT}" \
+    --user="${DB_USER}" \
+    --protocol=TCP \
+    "${DB_NAME}" < "${sql_seeder}"; then
+    log "SQL demo seed failed. Continuing startup without blocking Apache."
   fi
 }
 

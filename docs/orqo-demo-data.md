@@ -2,10 +2,11 @@
 
 Este proyecto incluye un seeder idempotente para poblar Orqo CRM con informacion dummy orientada a una demo comercial/tecnica.
 
-El seeder vive en:
+Los seeders viven en:
 
 ```text
 public/legacy/custom/orqo/seeders/demo_colombia.php
+public/legacy/custom/orqo/seeders/demo_colombia.sql
 ```
 
 ## Que crea
@@ -63,6 +64,8 @@ ORQO_SEED_DEMO_DATA="0"
 o elimina la variable.
 
 Aunque el seeder es idempotente, se recomienda no dejarlo activo permanentemente en demos compartidas para evitar que sobrescriba cambios manuales hechos durante presentaciones.
+
+El arranque intenta primero el seeder PHP por `BeanFactory`. Despues ejecuta el SQL idempotente de respaldo para asegurar que los modulos principales queden poblados aunque el bootstrap legacy falle.
 
 ## Modulos afectados
 
