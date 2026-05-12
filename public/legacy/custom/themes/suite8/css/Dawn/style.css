@@ -76,3 +76,71 @@ footer,
 .login-footer {
   color: #5f6470 !important;
 }
+
+.loading,
+.loader,
+.loading-screen,
+.loading-container,
+.spinner,
+.loading-icon,
+.suitecrm-loader,
+scrm-loading,
+scrm-loader,
+app-loading {
+  position: relative !important;
+}
+
+.loading::before,
+.loader::before,
+.loading-screen::before,
+.loading-container::before,
+.spinner::before,
+.loading-icon::before,
+.suitecrm-loader::before,
+scrm-loading::before,
+scrm-loader::before,
+app-loading::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: 82px !important;
+  height: 82px !important;
+  margin: -41px 0 0 -41px !important;
+  background: url("/legacy/themes/suite8/images/orqo-icon.png") center / contain no-repeat !important;
+  animation: orqo-loader-pulse 1.35s ease-in-out infinite !important;
+  z-index: 20 !important;
+}
+
+.loading *,
+.loader *,
+.loading-screen *,
+.loading-container *,
+.spinner *,
+.loading-icon *,
+.suitecrm-loader *,
+scrm-loading *,
+scrm-loader *,
+app-loading * {
+  visibility: hidden !important;
+}
+
+@keyframes orqo-loader-pulse {
+  0% {
+    opacity: 0.58;
+    transform: scale(0.9) rotate(-8deg);
+    filter: drop-shadow(0 0 0 rgba(0, 199, 132, 0));
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.04) rotate(0deg);
+    filter: drop-shadow(0 0 16px rgba(0, 199, 132, 0.28));
+  }
+
+  100% {
+    opacity: 0.58;
+    transform: scale(0.9) rotate(8deg);
+    filter: drop-shadow(0 0 0 rgba(0, 199, 132, 0));
+  }
+}
