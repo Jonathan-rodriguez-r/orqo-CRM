@@ -20,13 +20,14 @@ ADMIN_PASSWORD="${ADMIN_PASSWORD:-ChangeMe123!}"
 SITE_URL="${SITE_URL:-http://localhost:${HTTP_PORT}}"
 DEMO_DATA="${DEMO_DATA:-no}"
 RESET_ADMIN_PASSWORD="${RESET_ADMIN_PASSWORD:-}"
+ORQO_BRAND_NAME="${ORQO_BRAND_NAME:-Orqo CRM}"
 
 log() {
   printf '[orqo-entrypoint] %s\n' "$*"
 }
 
 tail_application_logs() {
-  log "Tailing SuiteCRM logs to container stdout."
+  log "Tailing Orqo CRM runtime logs to container stdout."
   touch \
     logs/prod/prod.log \
     logs/dev/dev.log \
@@ -75,12 +76,12 @@ download_suitecrm_if_needed() {
   mkdir -p "${APP_DIR}"
 
   if [[ -f "${APP_DIR}/bin/console" && -d "${APP_DIR}/public/legacy" ]]; then
-    log "SuiteCRM already present in ${APP_DIR}."
+    log "Orqo CRM base application already present in ${APP_DIR}."
     return
   fi
 
   if ! is_app_empty; then
-    log "Application directory is not empty but SuiteCRM is not complete; leaving existing files untouched."
+    log "Application directory is not empty but Orqo CRM base application is not complete; leaving existing files untouched."
     return
   fi
 
@@ -88,7 +89,7 @@ download_suitecrm_if_needed() {
   tmp_dir="$(mktemp -d)"
   trap 'rm -rf "${tmp_dir}"' RETURN
 
-  log "Downloading SuiteCRM ${SUITECRM_VERSION} from ${SUITECRM_DOWNLOAD_URL}."
+  log "Downloading Orqo CRM base package ${SUITECRM_VERSION}."
   curl -fL --retry 5 --retry-delay 5 --connect-timeout 30 \
     -o "${tmp_dir}/suitecrm.zip" \
     "${SUITECRM_DOWNLOAD_URL}"
@@ -99,12 +100,122 @@ download_suitecrm_if_needed() {
   extracted_root="$(find "${tmp_dir}/extract" -mindepth 1 -maxdepth 2 -type f -name composer.json -printf '%h\n' | head -n 1)"
 
   if [[ -z "${extracted_root}" || ! -f "${extracted_root}/bin/console" ]]; then
-    log "Downloaded archive does not look like a SuiteCRM 8 package."
+    log "Downloaded archive does not look like the expected Orqo CRM base package."
     exit 1
   fi
 
   cp -a "${extracted_root}/." "${APP_DIR}/"
-  log "SuiteCRM files copied into ${APP_DIR}."
+  log "Orqo CRM base files copied into ${APP_DIR}."
+}
+
+apply_orqo_overlay() {
+  if [[ ! -d /opt/orqo-overlay ]]; then
+    return
+  fi
+
+  log "Applying Orqo CRM custom overlay."
+  cp -a /opt/orqo-overlay/. "${APP_DIR}/"
+
+  if [[ -f "${APP_DIR}/public/legacy/custom/themes/default/images/company_logo.png" ]]; then
+    mkdir -p \
+      "${APP_DIR}/public/legacy/themes/default/images" \
+      "${APP_DIR}/public/legacy/themes/SuiteP/images" \
+      "${APP_DIR}/public/legacy/themes/suite8/images"
+
+    cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/company_logo.png" \
+      "${APP_DIR}/public/legacy/themes/default/images/company_logo.png" 2>/dev/null || true
+    cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/company_logo.png" \
+      "${APP_DIR}/public/legacy/themes/SuiteP/images/company_logo.png" 2>/dev/null || true
+    cp -f "${APP_DIR}/public/legacy/custom/themes/default/images/company_logo.png" \
+      "${APP_DIR}/public/legacy/themes/suite8/images/company_logo.png" 2>/dev/null || true
+  fi
+}
+
+replace_visible_suitecrm_branding() {
+  log "Replacing visible SuiteCRM branding with ${ORQO_BRAND_NAME}."
+
+  if [[ -d public/dist ]]; then
+    find public/dist -type f \( \
+      -name '*.js' -o \
+      -name '*.html' -o \
+      -name '*.json' -o \
+      -name '*.webmanifest' \
+    \) -exec sed -i \
+      -e "s/SuiteCRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/Suite CRM/${ORQO_BRAND_NAME}/g" \
+      {} +
+  fi
+
+  for css_file in public/dist/styles*.css; do
+    [[ -f "${css_file}" ]] || continue
+    if grep -q "ORQO_CRM_BRANDING_START" "${css_file}"; then
+      continue
+    fi
+
+    cat >> "${css_file}" <<'EOF'
+/* ORQO_CRM_BRANDING_START */
+body {
+  background: #f7f3ec;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(36, 169, 155, 0.12), transparent 24rem),
+    radial-gradient(circle at 84% 12%, rgba(236, 91, 79, 0.14), transparent 26rem);
+  z-index: -1;
+}
+
+input,
+.form-control {
+  border-radius: 8px !important;
+}
+
+button,
+.btn,
+.button {
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+}
+
+button[type="submit"],
+.btn-primary,
+.login-button {
+  background: #ec5b4f !important;
+  border-color: #ec5b4f !important;
+}
+
+button[type="submit"]:hover,
+.btn-primary:hover,
+.login-button:hover {
+  background: #d94f45 !important;
+  border-color: #d94f45 !important;
+}
+
+img[src*="company_logo"] {
+  max-width: 300px !important;
+  height: auto !important;
+}
+/* ORQO_CRM_BRANDING_END */
+EOF
+  done
+
+  if [[ -f public/site.webmanifest ]]; then
+    sed -i \
+      -e "s/SuiteCRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/Suite CRM/${ORQO_BRAND_NAME}/g" \
+      public/site.webmanifest
+  fi
+
+  if [[ -f public/legacy/themes/suite8/tpls/_head.tpl ]]; then
+    sed -i \
+      -e "s/SuiteCRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/Suite CRM/${ORQO_BRAND_NAME}/g" \
+      public/legacy/themes/suite8/tpls/_head.tpl
+  fi
 }
 
 persist_path() {
@@ -161,6 +272,29 @@ configure_persistence() {
   persist_file .env.local
   persist_file public/legacy/config.php
   persist_file public/legacy/config_override.php
+}
+
+write_legacy_branding_config() {
+  mkdir -p public/legacy/custom
+
+  cat > public/legacy/custom/orqo_branding_config.php <<EOF
+<?php
+// Managed by Orqo CRM bootstrap. Keep brand overrides out of SuiteCRM core.
+\$sugar_config['system_name'] = '${ORQO_BRAND_NAME}';
+\$sugar_config['company_logo'] = 'company_logo.png';
+\$sugar_config['company_logo_url'] = '';
+\$sugar_config['company_logo_width'] = '300';
+\$sugar_config['company_logo_height'] = '80';
+EOF
+
+  touch public/legacy/config_override.php
+  if [[ ! -s public/legacy/config_override.php ]]; then
+    printf "%s\n" "<?php" > public/legacy/config_override.php
+  fi
+
+  if ! grep -q "orqo_branding_config.php" public/legacy/config_override.php; then
+    printf "\nrequire_once __DIR__ . '/custom/orqo_branding_config.php';\n" >> public/legacy/config_override.php
+  fi
 }
 
 run_composer_install() {
@@ -308,14 +442,14 @@ cleanup_partial_install_files() {
 
 install_suitecrm_if_needed() {
   [[ -f bin/console ]] || {
-    log "bin/console not found; cannot run SuiteCRM installer."
+    log "bin/console not found; cannot run Orqo CRM installer."
     exit 1
   }
 
   wait_for_database
 
   if database_has_suitecrm; then
-    log "SuiteCRM database already contains users table; skipping unattended install."
+    log "Orqo CRM database already contains users table; skipping unattended install."
     write_runtime_env
     return
   fi
@@ -326,7 +460,7 @@ install_suitecrm_if_needed() {
   fi
 
   cleanup_partial_install_files
-  log "Running unattended SuiteCRM install."
+  log "Running unattended Orqo CRM install."
   APP_ENV=prod APP_DEBUG=0 php bin/console suitecrm:app:install \
     -u "${ADMIN_USER}" \
     -p "${ADMIN_PASSWORD}" \
@@ -391,6 +525,9 @@ main() {
   download_suitecrm_if_needed
   cd "${APP_DIR}"
   configure_persistence
+  apply_orqo_overlay
+  write_legacy_branding_config
+  replace_visible_suitecrm_branding
   run_composer_install
   ensure_permissions
   install_suitecrm_if_needed "$@"

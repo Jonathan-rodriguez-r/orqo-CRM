@@ -1,0 +1,50 @@
+/*
+ * Orqo CRM legacy theme accents.
+ * Loaded by SuiteCRM legacy views when the Dawn suite8 theme is active.
+ */
+:root {
+  --orqo-ink: #262c40;
+  --orqo-coral: #ec5b4f;
+  --orqo-teal: #24a99b;
+  --orqo-surface: #f7f3ec;
+}
+
+.navbar,
+.navbar-inverse,
+.suitepicon-action-home,
+#toolbar {
+  background-color: var(--orqo-ink) !important;
+}
+
+.navbar a,
+.navbar .dropdown-toggle,
+.navbar-inverse .navbar-nav > li > a {
+  color: #ffffff !important;
+}
+
+.navbar .active > a,
+.navbar .open > a,
+.navbar .dropdown-menu > li > a:hover {
+  color: #ffffff !important;
+  background-color: var(--orqo-coral) !important;
+}
+
+.btn-primary,
+.button.primary,
+input[type="submit"].button {
+  background-color: var(--orqo-coral) !important;
+  border-color: var(--orqo-coral) !important;
+}
+
+.btn-primary:hover,
+.button.primary:hover,
+input[type="submit"].button:hover {
+  background-color: #d94f45 !important;
+  border-color: #d94f45 !important;
+}
+
+.moduleTitle h2,
+.detail-view h4,
+.edit-view h4 {
+  color: var(--orqo-ink) !important;
+}
