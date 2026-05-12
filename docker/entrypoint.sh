@@ -251,7 +251,7 @@ install_suitecrm_if_needed() {
 
   cleanup_partial_install_files
   log "Running unattended SuiteCRM install."
-  APP_ENV=dev APP_DEBUG=0 php bin/console suitecrm:app:install \
+  APP_ENV=prod APP_DEBUG=0 php bin/console suitecrm:app:install \
     -u "${ADMIN_USER}" \
     -p "${ADMIN_PASSWORD}" \
     -U "${DB_USER}" \
