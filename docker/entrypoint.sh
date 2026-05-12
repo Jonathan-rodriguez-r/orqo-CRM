@@ -21,6 +21,9 @@ SITE_URL="${SITE_URL:-http://localhost:${HTTP_PORT}}"
 DEMO_DATA="${DEMO_DATA:-no}"
 RESET_ADMIN_PASSWORD="${RESET_ADMIN_PASSWORD:-}"
 ORQO_BRAND_NAME="${ORQO_BRAND_NAME:-Orqo CRM}"
+ORQO_DEFAULT_LANGUAGE="${ORQO_DEFAULT_LANGUAGE:-es_ES}"
+ORQO_USD_TO_COP_RATE="${ORQO_USD_TO_COP_RATE:-4000.000000}"
+ORQO_SPANISH_LANGUAGE_PACK_URL="${ORQO_SPANISH_LANGUAGE_PACK_URL:-https://sourceforge.net/projects/suitecrmtranslations/files/8.9/es_ES_SuiteCRM_lang_8.9.zip/download}"
 
 log() {
   printf '[orqo-entrypoint] %s\n' "$*"
@@ -222,6 +225,48 @@ EOF
   fi
 }
 
+install_spanish_language_pack_if_needed() {
+  if [[ "${ORQO_DEFAULT_LANGUAGE}" != "es_ES" ]]; then
+    return
+  fi
+
+  if [[ -f public/legacy/include/language/es_ES.lang.php && -f public/legacy/modules/Accounts/language/es_ES.lang.php ]]; then
+    log "Spanish language pack already present."
+    return
+  fi
+
+  log "Installing Spanish language pack for Orqo CRM."
+
+  local tmp_dir
+  tmp_dir="$(mktemp -d)"
+
+  if ! curl -fL --retry 5 --retry-delay 5 --connect-timeout 30 \
+    -o "${tmp_dir}/es_ES_lang.zip" \
+    "${ORQO_SPANISH_LANGUAGE_PACK_URL}"; then
+    log "Spanish language pack download failed; keeping current language files."
+    rm -rf "${tmp_dir}"
+    return
+  fi
+
+  unzip -q "${tmp_dir}/es_ES_lang.zip" -d "${tmp_dir}/extract"
+
+  local language_root
+  language_root="$(find "${tmp_dir}/extract" -mindepth 1 -maxdepth 3 -type f -name manifest.php -printf '%h\n' | head -n 1)"
+
+  if [[ -z "${language_root}" ]]; then
+    language_root="$(find "${tmp_dir}/extract" -mindepth 1 -maxdepth 3 -type f -path '*/include/language/es_ES.lang.php' -printf '%h\n' | sed 's#/include/language##' | head -n 1)"
+  fi
+
+  if [[ -z "${language_root}" || ! -d "${language_root}" ]]; then
+    log "Spanish language pack structure was not recognized; keeping current language files."
+    rm -rf "${tmp_dir}"
+    return
+  fi
+
+  cp -a "${language_root}/." public/legacy/
+  rm -rf "${tmp_dir}"
+}
+
 persist_path() {
   local app_path="$1"
   printf '%s/%s' "${PERSIST_ROOT}" "${app_path}"
@@ -285,6 +330,15 @@ write_legacy_branding_config() {
 <?php
 // Managed by Orqo CRM bootstrap. Keep brand overrides out of SuiteCRM core.
 \$sugar_config['system_name'] = '${ORQO_BRAND_NAME}';
+\$sugar_config['default_language'] = '${ORQO_DEFAULT_LANGUAGE}';
+\$sugar_config['languages']['en_us'] = 'English (US)';
+\$sugar_config['languages']['es_ES'] = 'Espanol (Espana)';
+\$sugar_config['default_currency_name'] = 'Colombian Peso';
+\$sugar_config['default_currency_symbol'] = '$';
+\$sugar_config['default_currency_iso4217'] = 'COP';
+\$sugar_config['default_currency_significant_digits'] = '2';
+\$sugar_config['default_number_grouping_seperator'] = '.';
+\$sugar_config['default_decimal_seperator'] = ',';
 \$sugar_config['company_logo'] = 'company_logo.png';
 \$sugar_config['company_logo_url'] = '';
 \$sugar_config['company_logo_width'] = '300';
@@ -299,6 +353,69 @@ EOF
   if ! grep -q "orqo_branding_config.php" public/legacy/config_override.php; then
     printf "\nrequire_once __DIR__ . '/custom/orqo_branding_config.php';\n" >> public/legacy/config_override.php
   fi
+}
+
+configure_orqo_currency_and_locale() {
+  if ! database_has_suitecrm; then
+    return
+  fi
+
+  log "Configuring Orqo CRM locale: ${ORQO_DEFAULT_LANGUAGE}, COP base currency, USD secondary."
+
+  MYSQL_PWD="${DB_PASSWORD}" mysql \
+    --host="${DB_HOST}" \
+    --port="${DB_PORT}" \
+    --user="${DB_USER}" \
+    --database="${DB_NAME}" \
+    --execute="
+      INSERT INTO config (category, name, value)
+      VALUES
+        ('system', 'default_language', '${ORQO_DEFAULT_LANGUAGE}'),
+        ('system', 'default_currency_name', 'Colombian Peso'),
+        ('system', 'default_currency_symbol', '$'),
+        ('system', 'default_currency_iso4217', 'COP'),
+        ('system', 'default_currency_significant_digits', '2'),
+        ('system', 'default_number_grouping_seperator', '.'),
+        ('system', 'default_decimal_seperator', ',')
+      ON DUPLICATE KEY UPDATE value = VALUES(value);
+
+      INSERT INTO currencies (
+        id, name, symbol, iso4217, conversion_rate, status, deleted,
+        date_entered, date_modified, created_by
+      )
+      VALUES (
+        'orqo-usd-secondary',
+        'US Dollar',
+        '$',
+        'USD',
+        ${ORQO_USD_TO_COP_RATE},
+        'Active',
+        0,
+        UTC_TIMESTAMP(),
+        UTC_TIMESTAMP(),
+        '1'
+      )
+      ON DUPLICATE KEY UPDATE
+        name = VALUES(name),
+        symbol = VALUES(symbol),
+        iso4217 = VALUES(iso4217),
+        conversion_rate = VALUES(conversion_rate),
+        status = 'Active',
+        deleted = 0,
+        date_modified = UTC_TIMESTAMP();
+
+    " 2>/dev/null || log "Currency/locale DB configuration skipped; schema may still be initializing."
+
+  MYSQL_PWD="${DB_PASSWORD}" mysql \
+    --host="${DB_HOST}" \
+    --port="${DB_PORT}" \
+    --user="${DB_USER}" \
+    --database="${DB_NAME}" \
+    --execute="
+      UPDATE user_preferences
+      SET contents = REPLACE(contents, 'en_us', '${ORQO_DEFAULT_LANGUAGE}')
+      WHERE assigned_user_id = '1' AND deleted = 0;
+    " 2>/dev/null || true
 }
 
 run_composer_install() {
@@ -530,11 +647,13 @@ main() {
   cd "${APP_DIR}"
   configure_persistence
   apply_orqo_overlay
+  install_spanish_language_pack_if_needed
   write_legacy_branding_config
   replace_visible_suitecrm_branding
   run_composer_install
   ensure_permissions
   install_suitecrm_if_needed "$@"
+  configure_orqo_currency_and_locale
   reset_admin_password_if_requested
   ensure_permissions
   tail_application_logs
