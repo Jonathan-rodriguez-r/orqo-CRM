@@ -1,0 +1,6 @@
+vendor/
+cache/
+*.log
+.env.local
+crm_data/
+db_data/
