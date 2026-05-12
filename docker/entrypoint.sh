@@ -194,8 +194,9 @@ replace_visible_suitecrm_branding() {
 
   for css_file in public/dist/styles*.css; do
     [[ -f "${css_file}" ]] || continue
+    # Remove any existing Orqo block so changes always take effect
     if grep -q "ORQO_CRM_BRANDING_START" "${css_file}"; then
-      continue
+      sed -i '/\/\* ORQO_CRM_BRANDING_START \*\//,/\/\* ORQO_CRM_BRANDING_END \*\//d' "${css_file}" 2>/dev/null || true
     fi
 
     cat >> "${css_file}" <<'EOF'
@@ -320,14 +321,22 @@ button[type="submit"]:hover,
 }
 
 .navbar .dropdown-menu > li > a,
-.navbar-default .dropdown-menu > li > a {
+.navbar-default .dropdown-menu > li > a,
+.navbar .dropdown-menu a,
+.navbar .dropdown-menu .dropdown-item,
+.navbar-default .dropdown-menu a,
+.navbar-default .dropdown-menu .dropdown-item {
   color: #F5F5F2 !important;
 }
 
 .navbar .dropdown-menu > li > a:hover,
 .navbar .dropdown-menu > li > a:focus,
 .navbar-default .dropdown-menu > li > a:hover,
-.navbar-default .dropdown-menu > li > a:focus {
+.navbar-default .dropdown-menu > li > a:focus,
+.navbar .dropdown-menu a:hover,
+.navbar .dropdown-menu .dropdown-item:hover,
+.navbar-default .dropdown-menu a:hover,
+.navbar-default .dropdown-menu .dropdown-item:hover {
   background-color: #ffffff !important;
   color: #1A8A55 !important;
 }
@@ -771,15 +780,22 @@ EOF
         'body .navbar-right .dropdown-menu li:first-child a,',
         'body .navbar-right .dropdown-menu li:first-child{',
           'color:#F5F5F2!important;background-color:#2E4038!important;}',
-        /* dropdown links */
-        'body .navbar .dropdown-menu>li>a,',
+        /* dropdown links — Bootstrap 3 (li>a) and Bootstrap 4 (dropdown-item / direct a) */
+        'body .navbar .dropdown-menu>li>a,body .navbar .dropdown-menu a,',
+        'body .navbar .dropdown-menu .dropdown-item,',
         'body .navbar-default .navbar-nav .open .dropdown-menu>li>a,',
-        'body .dropdown-menu>li>a{color:#F5F5F2!important;}',
+        'body .navbar-default .dropdown-menu a,',
+        'body .navbar-default .dropdown-menu .dropdown-item,',
+        'body .dropdown-menu>li>a,body .dropdown-menu a,body .dropdown-menu .dropdown-item{',
+          'color:#F5F5F2!important;}',
         /* dropdown hover */
         'body .navbar .dropdown-menu>li>a:hover,',
-        'body .navbar .dropdown-menu>li>a:focus,',
-        'body .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover,',
-        'body .dropdown-menu>li>a:hover,body .dropdown-menu>li>a:focus{',
+        'body .navbar .dropdown-menu a:hover,',
+        'body .navbar .dropdown-menu .dropdown-item:hover,',
+        'body .navbar-default .dropdown-menu a:hover,',
+        'body .navbar-default .dropdown-menu .dropdown-item:hover,',
+        'body .dropdown-menu>li>a:hover,body .dropdown-menu a:hover,',
+        'body .dropdown-menu .dropdown-item:hover{',
           'background-color:#ffffff!important;color:#1A8A55!important;}',
         /* alert / notification banner */
         'body .alert,body .alert-warning,body .alert-danger,',
@@ -803,14 +819,19 @@ EOF
     document._orqoDropHover = true;
 
     function isInsideDropdown(el) {
-      for (var i = 0; i < 6 && el && el !== document.body; i++) {
-        if (el.tagName === 'A' || el.tagName === 'LI') {
-          var p = el.parentElement;
-          if (p && p.classList && p.classList.contains('dropdown-menu')) {
-            return el.tagName === 'A' ? el : p.querySelector('a');
-          }
+      for (var i = 0; i < 8 && el && el !== document.body; i++) {
+        var p = el.parentElement;
+        if (p && p.classList && p.classList.contains('dropdown-menu')) {
+          // Return the link element itself or the closest A inside this node
+          if (el.tagName === 'A') { return el; }
+          var a = el.querySelector ? el.querySelector('a') : null;
+          return a || el;
         }
-        el = el.parentElement;
+        // Also handle: A whose direct parent is dropdown-menu (Bootstrap 4 dropdown-item)
+        if (el.tagName === 'A' && p && p.classList && p.classList.contains('dropdown-menu')) {
+          return el;
+        }
+        el = p;
       }
       return null;
     }
@@ -1216,14 +1237,22 @@ body, .sugar_body_td, #content, .container-fluid {
 }
 .navbar .dropdown-menu > li > a,
 .navbar-default .dropdown-menu > li > a,
-.navbar-default .navbar-nav .open .dropdown-menu > li > a {
+.navbar-default .navbar-nav .open .dropdown-menu > li > a,
+.navbar .dropdown-menu a,
+.navbar .dropdown-menu .dropdown-item,
+.navbar-default .dropdown-menu a,
+.navbar-default .dropdown-menu .dropdown-item {
   color: #F5F5F2 !important;
 }
 .navbar .dropdown-menu > li > a:hover,
 .navbar .dropdown-menu > li > a:focus,
 .navbar-default .dropdown-menu > li > a:hover,
 .navbar-default .dropdown-menu > li > a:focus,
-.navbar-default .navbar-nav .open .dropdown-menu > li > a:hover {
+.navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
+.navbar .dropdown-menu a:hover,
+.navbar .dropdown-menu .dropdown-item:hover,
+.navbar-default .dropdown-menu a:hover,
+.navbar-default .dropdown-menu .dropdown-item:hover {
   background-color: #ffffff !important;
   color: #1A8A55 !important;
 }
@@ -1255,7 +1284,9 @@ ORQO_CSS_BLOCK
     "public/legacy/themes/SuiteP/css/Dawn/style.css" \
     "public/legacy/themes/suite8/css/Dawn/style.css"; do
     [[ -f "${_f}" ]] || continue
-    grep -q "Orqo CRM color overrides" "${_f}" 2>/dev/null && continue
+    # Remove previous Orqo block so changes always take effect
+    sed -i '/\/\* === Orqo CRM color overrides ===/,/^}$/{/^}/d;d}' "${_f}" 2>/dev/null || true
+    sed -i '/\/\* === Orqo CRM color overrides ===/,$d' "${_f}" 2>/dev/null || true
     cat "${_orqo_tmp}" >> "${_f}"
   done
 
