@@ -184,6 +184,8 @@ replace_visible_suitecrm_branding() {
       -e "s/Suite CRM/${ORQO_BRAND_NAME}/g" \
       -e "s/SugarCRM/${ORQO_BRAND_NAME}/g" \
       -e "s/Sugar CRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/SalesAgility/Orqo/g" \
+      -e "s/Open Source CRM/Engineering CRM/g" \
       -e "s/Powered By ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       -e "s/Powered by ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       {} +
@@ -275,6 +277,22 @@ img[src*="company_logo"] {
   height: auto !important;
 }
 
+body:has([class*="about"]) img[src*="company_logo"],
+[class*="about"] img[src*="company_logo"],
+[class*="About"] img[src*="company_logo"],
+.about img[src*="company_logo"] {
+  content: url("/legacy/themes/suite8/images/company_logo.png") !important;
+  width: min(430px, 78vw) !important;
+  max-width: 430px !important;
+  height: auto !important;
+}
+
+[class*="about"],
+[class*="About"],
+.about {
+  color: #161c2d !important;
+}
+
 footer,
 .footer,
 .login-footer {
@@ -358,6 +376,8 @@ EOF
       -e "s/Suite CRM/${ORQO_BRAND_NAME}/g" \
       -e "s/SugarCRM/${ORQO_BRAND_NAME}/g" \
       -e "s/Sugar CRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/SalesAgility/Orqo/g" \
+      -e "s/Open Source CRM/Engineering CRM/g" \
       -e "s/Powered By ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       -e "s/Powered by ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       public/site.webmanifest
@@ -369,6 +389,8 @@ EOF
       -e "s/Suite CRM/${ORQO_BRAND_NAME}/g" \
       -e "s/SugarCRM/${ORQO_BRAND_NAME}/g" \
       -e "s/Sugar CRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/SalesAgility/Orqo/g" \
+      -e "s/Open Source CRM/Engineering CRM/g" \
       -e "s/Powered By ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       -e "s/Powered by ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       public/legacy/themes/suite8/tpls/_head.tpl
@@ -380,6 +402,8 @@ EOF
       -e "s/Suite CRM/${ORQO_BRAND_NAME}/g" \
       -e "s/SugarCRM/${ORQO_BRAND_NAME}/g" \
       -e "s/Sugar CRM/${ORQO_BRAND_NAME}/g" \
+      -e "s/SalesAgility/Orqo/g" \
+      -e "s/Open Source CRM/Engineering CRM/g" \
       -e "s/Powered By ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       -e "s/Powered by ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       {} + 2>/dev/null || true
