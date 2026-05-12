@@ -742,6 +742,7 @@ EOF
     var s = document.createElement('style');
     s.id = 'orqo-color-overrides';
     s.textContent = [
+      /* ── active nav item ── */
       'body .navbar-default .navbar-nav>.active>a,',
       'body .navbar-default .navbar-nav>.active>a:hover,',
       'body .navbar-default .navbar-nav>.active>a:focus,',
@@ -753,18 +754,39 @@ EOF
         'max-height:46px!important;overflow:hidden!important;}',
       'body .navbar-default .navbar-nav>.active>a *,',
       'body .navbar .active>a *{color:#2E4038!important;}',
+      /* ── dropdown panel ── */
       'body .navbar .dropdown-menu,',
-      'body .navbar-default .navbar-nav .open .dropdown-menu{',
+      'body .navbar-default .navbar-nav .open .dropdown-menu,',
+      'body .dropdown-menu{',
         'background-color:#7A9488!important;border:none!important;',
         'box-shadow:0 4px 12px rgba(46,64,56,.18)!important;}',
       'body .navbar .dropdown-menu>li>a,',
-      'body .navbar-default .navbar-nav .open .dropdown-menu>li>a{color:#fff!important;}',
+      'body .navbar-default .navbar-nav .open .dropdown-menu>li>a,',
+      'body .dropdown-menu>li>a{color:#fff!important;}',
+      /* ── dropdown hover ── */
       'body .navbar .dropdown-menu>li>a:hover,',
       'body .navbar .dropdown-menu>li>a:focus,',
       'body .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover,',
       'body .navbar-default .navbar-nav .open .dropdown-menu>li>a:focus,',
-      'body .dropdown-menu>li>a:hover,body .dropdown-menu>li>a:focus{',
-        'background-color:#1A8A55!important;color:#fff!important;}'
+      'body .dropdown-menu>li>a:hover,',
+      'body .dropdown-menu>li>a:focus,',
+      'body .dropdown-menu .active>a,',
+      'body .dropdown-menu .active>a:hover{',
+        'background-color:#1A8A55!important;color:#fff!important;}',
+      /* ── alert / notification banner ── */
+      'body .alert,',
+      'body .alert-warning,body .alert-danger,body .alert-error,body .alert-info,',
+      'body [class*="alert"],body [class*="notification-bar"],',
+      'body [class*="notifyDiv"],body #notifyDiv,',
+      'body .errorOccurred,body #notify_messages,body .notify_message,',
+      'body scrm-alert,body app-alert,body scrm-notification,',
+      'body [class*="system-message"]{',
+        'background-color:#1A8A55!important;',
+        'border-color:#176647!important;',
+        'color:#fff!important;}',
+      'body .alert a,body [class*="alert"] a,body [class*="notification-bar"] a,',
+      'body .errorOccurred a,body #notify_messages a{',
+        'color:#d4f5e4!important;text-decoration:underline!important;}'
     ].join('');
     document.head.appendChild(s);
   }
