@@ -4,7 +4,7 @@ set -Eeuo pipefail
 APP_DIR="${APP_DIR:-/var/www/html}"
 WEB_USER="${APACHE_RUN_USER:-www-data}"
 WEB_GROUP="${APACHE_RUN_GROUP:-www-data}"
-PORT="${PORT:-80}"
+HTTP_PORT="${HTTP_PORT:-80}"
 PERSIST_ROOT="${PERSIST_ROOT:-}"
 export APP_RUNTIME_OPTIONS="${APP_RUNTIME_OPTIONS:-{\"project_dir\":\"${APP_DIR}\"}}"
 
@@ -18,7 +18,7 @@ DB_USER="${DB_USER:-${MYSQLUSER:-suitecrm}}"
 DB_PASSWORD="${DB_PASSWORD:-${MYSQLPASSWORD:-}}"
 ADMIN_USER="${ADMIN_USER:-admin}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-ChangeMe123!}"
-SITE_URL="${SITE_URL:-http://localhost:${PORT}}"
+SITE_URL="${SITE_URL:-http://localhost:${HTTP_PORT}}"
 DEMO_DATA="${DEMO_DATA:-no}"
 
 log() {
@@ -30,8 +30,8 @@ configure_runtime() {
     echo "date.timezone=${PHP_TIMEZONE}" > /usr/local/etc/php/conf.d/99-orqo-timezone.ini
   fi
 
-  sed -ri "s/^Listen .*/Listen ${PORT}/" /etc/apache2/ports.conf
-  sed -ri "s/<VirtualHost \*:.*>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf
+  sed -ri "s/^Listen .*/Listen ${HTTP_PORT}/" /etc/apache2/ports.conf
+  sed -ri "s/<VirtualHost \*:.*>/<VirtualHost *:${HTTP_PORT}>/" /etc/apache2/sites-available/000-default.conf
 }
 
 is_app_empty() {
