@@ -346,18 +346,77 @@ button[type="submit"]:hover,
 .navbar-default .dropdown-menu a,
 .navbar-default .dropdown-menu .dropdown-item {
   color: #F5F5F2 !important;
+  background-color: transparent !important;
 }
 
+.navbar .dropdown-menu > li:hover > a,
 .navbar .dropdown-menu > li > a:hover,
 .navbar .dropdown-menu > li > a:focus,
+.navbar-default .dropdown-menu > li:hover > a,
 .navbar-default .dropdown-menu > li > a:hover,
 .navbar-default .dropdown-menu > li > a:focus,
-.navbar .dropdown-menu a:hover,
 .navbar .dropdown-menu .dropdown-item:hover,
-.navbar-default .dropdown-menu a:hover,
-.navbar-default .dropdown-menu .dropdown-item:hover {
+.navbar .dropdown-menu .dropdown-item:focus,
+.navbar-default .dropdown-menu .dropdown-item:hover,
+.navbar-default .dropdown-menu .dropdown-item:focus {
   background-color: #1A8A55 !important;
   color: #ffffff !important;
+}
+
+.navbar form,
+.navbar .search,
+.navbar .searchform,
+.navbar .navbar-search,
+.navbar .global-search,
+.navbar [class*="search"] {
+  background-color: transparent !important;
+}
+
+.navbar input[type="search"],
+.navbar input.search-query,
+.navbar .search-query,
+.navbar .form-control[type="search"],
+.navbar .global-search input,
+.navbar [class*="search"] input {
+  background-color: rgba(245, 245, 242, 0.12) !important;
+  border: 1px solid rgba(26, 138, 85, 0.65) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.navbar input[type="search"]:hover,
+.navbar input[type="search"]:focus,
+.navbar input.search-query:hover,
+.navbar input.search-query:focus,
+.navbar .search-query:hover,
+.navbar .search-query:focus,
+.navbar .global-search input:hover,
+.navbar .global-search input:focus,
+.navbar [class*="search"] input:hover,
+.navbar [class*="search"] input:focus {
+  background-color: rgba(245, 245, 242, 0.16) !important;
+  border-color: #1A8A55 !important;
+  color: #ffffff !important;
+}
+
+.navbar .search button,
+.navbar .searchform button,
+.navbar .navbar-search button,
+.navbar .global-search button,
+.navbar [class*="search"] button {
+  background-color: #F5F5F2 !important;
+  border-color: #F5F5F2 !important;
+  color: #1A8A55 !important;
+}
+
+.navbar .search button:hover,
+.navbar .searchform button:hover,
+.navbar .navbar-search button:hover,
+.navbar .global-search button:hover,
+.navbar [class*="search"] button:hover {
+  background-color: #d4f5e4 !important;
+  border-color: #1A8A55 !important;
+  color: #176647 !important;
 }
 
 .alert,
@@ -834,16 +893,42 @@ EOF
         'body .navbar-default .dropdown-menu a,',
         'body .navbar-default .dropdown-menu .dropdown-item,',
         'body .dropdown-menu>li>a,body .dropdown-menu a,body .dropdown-menu .dropdown-item{',
-          'color:#F5F5F2!important;}',
+          'color:#F5F5F2!important;background-color:transparent!important;}',
         /* dropdown hover */
+        'body .navbar .dropdown-menu>li:hover>a,',
         'body .navbar .dropdown-menu>li>a:hover,',
-        'body .navbar .dropdown-menu a:hover,',
         'body .navbar .dropdown-menu .dropdown-item:hover,',
-        'body .navbar-default .dropdown-menu a:hover,',
+        'body .navbar .dropdown-menu .dropdown-item:focus,',
+        'body .navbar-default .dropdown-menu>li:hover>a,',
         'body .navbar-default .dropdown-menu .dropdown-item:hover,',
-        'body .dropdown-menu>li>a:hover,body .dropdown-menu a:hover,',
-        'body .dropdown-menu .dropdown-item:hover{',
+        'body .dropdown-menu>li:hover>a,body .dropdown-menu>li>a:hover,',
+        'body .dropdown-menu .dropdown-item:hover,body .dropdown-menu .dropdown-item:focus{',
           'background-color:#1A8A55!important;color:#fff!important;}',
+        /* navbar global search */
+        'body .navbar form,body .navbar .search,body .navbar .searchform,',
+        'body .navbar .navbar-search,body .navbar .global-search,',
+        'body .navbar [class*="search"]{background-color:transparent!important;}',
+        'body .navbar input[type="search"],body .navbar input.search-query,',
+        'body .navbar .search-query,body .navbar .form-control[type="search"],',
+        'body .navbar .global-search input,body .navbar [class*="search"] input{',
+          'background-color:rgba(245,245,242,.12)!important;',
+          'border:1px solid rgba(26,138,85,.65)!important;',
+          'color:#fff!important;box-shadow:none!important;}',
+        'body .navbar input[type="search"]:hover,body .navbar input[type="search"]:focus,',
+        'body .navbar input.search-query:hover,body .navbar input.search-query:focus,',
+        'body .navbar .search-query:hover,body .navbar .search-query:focus,',
+        'body .navbar .global-search input:hover,body .navbar .global-search input:focus,',
+        'body .navbar [class*="search"] input:hover,body .navbar [class*="search"] input:focus{',
+          'background-color:rgba(245,245,242,.16)!important;',
+          'border-color:#1A8A55!important;color:#fff!important;}',
+        'body .navbar .search button,body .navbar .searchform button,',
+        'body .navbar .navbar-search button,body .navbar .global-search button,',
+        'body .navbar [class*="search"] button{',
+          'background-color:#F5F5F2!important;border-color:#F5F5F2!important;color:#1A8A55!important;}',
+        'body .navbar .search button:hover,body .navbar .searchform button:hover,',
+        'body .navbar .navbar-search button:hover,body .navbar .global-search button:hover,',
+        'body .navbar [class*="search"] button:hover{',
+          'background-color:#d4f5e4!important;border-color:#1A8A55!important;color:#176647!important;}',
         /* alert / notification banner */
         'body .alert,body .alert-warning,body .alert-danger,',
         'body .alert-error,body .alert-info,',
@@ -878,26 +963,38 @@ EOF
     document._orqoDropHover = true;
 
     function isInsideDropdown(el) {
-      for (var i = 0; i < 8 && el && el !== document.body; i++) {
-        var p = el.parentElement;
-        if (p && p.classList && p.classList.contains('dropdown-menu')) {
-          // Return the link element itself or the closest A inside this node
-          if (el.tagName === 'A') { return el; }
-          var a = el.querySelector ? el.querySelector('a') : null;
-          return a || el;
-        }
-        // Also handle: A whose direct parent is dropdown-menu (Bootstrap 4 dropdown-item)
-        if (el.tagName === 'A' && p && p.classList && p.classList.contains('dropdown-menu')) {
-          return el;
-        }
-        el = p;
+      if (!el || !el.closest) {
+        return null;
       }
-      return null;
+
+      var directItem = el.closest('.dropdown-menu > li');
+      if (directItem) {
+        return directItem.querySelector(':scope > a') || directItem.querySelector('a');
+      }
+
+      return el.closest('.dropdown-menu > a, .dropdown-menu .dropdown-item');
+    }
+
+    function isRecentMenu(link) {
+      var menu = link && link.closest ? link.closest('.dropdown-menu') : null;
+      var text = menu ? (menu.textContent || '') : '';
+      return /reciente|recent/i.test(text);
     }
 
     document.addEventListener('mouseover', function (e) {
       var link = isInsideDropdown(e.target);
       if (link) {
+        if (isRecentMenu(link)) {
+          var menu = link.closest('.dropdown-menu');
+          if (menu) {
+            menu.querySelectorAll('a,.dropdown-item').forEach(function (item) {
+              if (item !== link) {
+                item.style.removeProperty('background-color');
+                item.style.setProperty('color', '#F5F5F2', 'important');
+              }
+            });
+          }
+        }
         link.style.setProperty('background-color', '#1A8A55', 'important');
         link.style.setProperty('color', '#ffffff', 'important');
       }
@@ -908,6 +1005,16 @@ EOF
       if (link) {
         link.style.removeProperty('background-color');
         link.style.setProperty('color', '#F5F5F2', 'important');
+      }
+    });
+  }
+
+  function removeCommunityForumLinks() {
+    document.querySelectorAll('.navbar .dropdown-menu a, .dropdown-menu a').forEach(function (link) {
+      var text = (link.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+      if (text === 'foro comunitario' || text === 'community forum') {
+        var item = link.closest && link.closest('li');
+        (item || link).remove();
       }
     });
   }
@@ -1188,6 +1295,7 @@ EOF
     patchAboutHeadings();
     patchLoaders();
     replaceAboutPage();
+    removeCommunityForumLinks();
     patchDropdownHover();
     patchActiveNavItem();
     patchNotificationBanner();
@@ -1350,18 +1458,73 @@ body, .sugar_body_td, #content, .container-fluid {
 .navbar-default .dropdown-menu a,
 .navbar-default .dropdown-menu .dropdown-item {
   color: #F5F5F2 !important;
+  background-color: transparent !important;
 }
+.navbar .dropdown-menu > li:hover > a,
 .navbar .dropdown-menu > li > a:hover,
 .navbar .dropdown-menu > li > a:focus,
+.navbar-default .dropdown-menu > li:hover > a,
 .navbar-default .dropdown-menu > li > a:hover,
 .navbar-default .dropdown-menu > li > a:focus,
+.navbar-default .navbar-nav .open .dropdown-menu > li:hover > a,
 .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
-.navbar .dropdown-menu a:hover,
 .navbar .dropdown-menu .dropdown-item:hover,
-.navbar-default .dropdown-menu a:hover,
-.navbar-default .dropdown-menu .dropdown-item:hover {
+.navbar .dropdown-menu .dropdown-item:focus,
+.navbar-default .dropdown-menu .dropdown-item:hover,
+.navbar-default .dropdown-menu .dropdown-item:focus {
   background-color: #1A8A55 !important;
   color: #ffffff !important;
+}
+.navbar form,
+.navbar .search,
+.navbar .searchform,
+.navbar .navbar-search,
+.navbar .global-search,
+.navbar [class*="search"] {
+  background-color: transparent !important;
+}
+.navbar input[type="search"],
+.navbar input.search-query,
+.navbar .search-query,
+.navbar .form-control[type="search"],
+.navbar .global-search input,
+.navbar [class*="search"] input {
+  background-color: rgba(245, 245, 242, 0.12) !important;
+  border: 1px solid rgba(26, 138, 85, 0.65) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+.navbar input[type="search"]:hover,
+.navbar input[type="search"]:focus,
+.navbar input.search-query:hover,
+.navbar input.search-query:focus,
+.navbar .search-query:hover,
+.navbar .search-query:focus,
+.navbar .global-search input:hover,
+.navbar .global-search input:focus,
+.navbar [class*="search"] input:hover,
+.navbar [class*="search"] input:focus {
+  background-color: rgba(245, 245, 242, 0.16) !important;
+  border-color: #1A8A55 !important;
+  color: #ffffff !important;
+}
+.navbar .search button,
+.navbar .searchform button,
+.navbar .navbar-search button,
+.navbar .global-search button,
+.navbar [class*="search"] button {
+  background-color: #F5F5F2 !important;
+  border-color: #F5F5F2 !important;
+  color: #1A8A55 !important;
+}
+.navbar .search button:hover,
+.navbar .searchform button:hover,
+.navbar .navbar-search button:hover,
+.navbar .global-search button:hover,
+.navbar [class*="search"] button:hover {
+  background-color: #d4f5e4 !important;
+  border-color: #1A8A55 !important;
+  color: #176647 !important;
 }
 .btn-primary, .btn-default, .button.primary, input[type="submit"] {
   background-color: #1A8A55 !important;

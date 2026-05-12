@@ -120,17 +120,84 @@ header img[src*="company_logo"] {
 }
 
 .navbar .dropdown-menu > li > a,
-.navbar-default .dropdown-menu > li > a {
+.navbar-default .dropdown-menu > li > a,
+.navbar .dropdown-menu a,
+.navbar .dropdown-menu .dropdown-item,
+.navbar-default .dropdown-menu a,
+.navbar-default .dropdown-menu .dropdown-item {
   color: #F5F5F2 !important;
+  background-color: transparent !important;
 }
 
 /* hover sobre opciones del dropdown */
+.navbar .dropdown-menu > li:hover > a,
 .navbar .dropdown-menu > li > a:hover,
 .navbar .dropdown-menu > li > a:focus,
+.navbar-default .dropdown-menu > li:hover > a,
 .navbar-default .dropdown-menu > li > a:hover,
-.navbar-default .dropdown-menu > li > a:focus {
+.navbar-default .dropdown-menu > li > a:focus,
+.navbar .dropdown-menu .dropdown-item:hover,
+.navbar .dropdown-menu .dropdown-item:focus,
+.navbar-default .dropdown-menu .dropdown-item:hover,
+.navbar-default .dropdown-menu .dropdown-item:focus {
   background-color: #1A8A55 !important;
   color: #ffffff !important;
+}
+
+.navbar form,
+.navbar .search,
+.navbar .searchform,
+.navbar .navbar-search,
+.navbar .global-search,
+.navbar [class*="search"] {
+  background-color: transparent !important;
+}
+
+.navbar input[type="search"],
+.navbar input.search-query,
+.navbar .search-query,
+.navbar .form-control[type="search"],
+.navbar .global-search input,
+.navbar [class*="search"] input {
+  background-color: rgba(245, 245, 242, 0.12) !important;
+  border: 1px solid rgba(26, 138, 85, 0.65) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.navbar input[type="search"]:hover,
+.navbar input[type="search"]:focus,
+.navbar input.search-query:hover,
+.navbar input.search-query:focus,
+.navbar .search-query:hover,
+.navbar .search-query:focus,
+.navbar .global-search input:hover,
+.navbar .global-search input:focus,
+.navbar [class*="search"] input:hover,
+.navbar [class*="search"] input:focus {
+  background-color: rgba(245, 245, 242, 0.16) !important;
+  border-color: #1A8A55 !important;
+  color: #ffffff !important;
+}
+
+.navbar .search button,
+.navbar .searchform button,
+.navbar .navbar-search button,
+.navbar .global-search button,
+.navbar [class*="search"] button {
+  background-color: #F5F5F2 !important;
+  border-color: #F5F5F2 !important;
+  color: #1A8A55 !important;
+}
+
+.navbar .search button:hover,
+.navbar .searchform button:hover,
+.navbar .navbar-search button:hover,
+.navbar .global-search button:hover,
+.navbar [class*="search"] button:hover {
+  background-color: #d4f5e4 !important;
+  border-color: #1A8A55 !important;
+  color: #176647 !important;
 }
 
 .alert,
