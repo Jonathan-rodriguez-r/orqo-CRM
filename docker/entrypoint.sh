@@ -211,7 +211,7 @@ body scrm-navbar,
 body .topnav {
   min-height: 46px !important;
   height: 46px !important;
-  background: #554f68 !important;
+  background: #2E4038 !important;
   overflow: visible !important;
 }
 
@@ -243,7 +243,7 @@ body::before {
   pointer-events: none;
   background:
     radial-gradient(circle at 12% 18%, rgba(36, 169, 155, 0.12), transparent 24rem),
-    radial-gradient(circle at 84% 12%, rgba(236, 91, 79, 0.14), transparent 26rem);
+    radial-gradient(circle at 84% 12%, rgba(26, 138, 85, 0.12), transparent 26rem);
   z-index: -1;
 }
 
@@ -262,15 +262,15 @@ button,
 button[type="submit"],
 .btn-primary,
 .login-button {
-  background: #ec5b4f !important;
-  border-color: #ec5b4f !important;
+  background: #1A8A55 !important;
+  border-color: #1A8A55 !important;
 }
 
 button[type="submit"]:hover,
 .btn-primary:hover,
 .login-button:hover {
-  background: #d94f45 !important;
-  border-color: #d94f45 !important;
+  background: #176647 !important;
+  border-color: #176647 !important;
 }
 
 img[src*="company_logo"] {
@@ -391,19 +391,19 @@ body .app-overlay [class*="Rect"] {
   0% {
     opacity: 0.58;
     transform: scale(0.9) rotate(-8deg);
-    filter: drop-shadow(0 0 0 rgba(0, 199, 132, 0));
+    filter: drop-shadow(0 0 0 rgba(26, 138, 85, 0));
   }
 
   50% {
     opacity: 1;
     transform: scale(1.04) rotate(0deg);
-    filter: drop-shadow(0 0 16px rgba(0, 199, 132, 0.28));
+    filter: drop-shadow(0 0 16px rgba(26, 138, 85, 0.28));
   }
 
   100% {
     opacity: 0.58;
     transform: scale(0.9) rotate(8deg);
-    filter: drop-shadow(0 0 0 rgba(0, 199, 132, 0));
+    filter: drop-shadow(0 0 0 rgba(26, 138, 85, 0));
   }
 }
 /* ORQO_CRM_BRANDING_END */
@@ -476,7 +476,7 @@ install_orqo_runtime_branding_patch() {
 /* ORQO_RUNTIME_BRANDING_START */
 :root {
   --orqo-ink: #161c2d;
-  --orqo-coral: #ec5b4f;
+  --orqo-coral: #1A8A55;
   --orqo-teal: #00c784;
   --orqo-muted: #7c8a8a;
 }
@@ -581,19 +581,19 @@ body .app-overlay [class*="Rect"] {
   0% {
     opacity: 0.56;
     transform: scale(0.92) rotate(-8deg);
-    filter: drop-shadow(0 0 0 rgba(0, 199, 132, 0));
+    filter: drop-shadow(0 0 0 rgba(26, 138, 85, 0));
   }
 
   50% {
     opacity: 1;
     transform: scale(1.05) rotate(0deg);
-    filter: drop-shadow(0 0 18px rgba(0, 199, 132, 0.28));
+    filter: drop-shadow(0 0 18px rgba(26, 138, 85, 0.28));
   }
 
   100% {
     opacity: 0.56;
     transform: scale(0.92) rotate(8deg);
-    filter: drop-shadow(0 0 0 rgba(0, 199, 132, 0));
+    filter: drop-shadow(0 0 0 rgba(26, 138, 85, 0));
   }
 }
 /* ORQO_RUNTIME_BRANDING_END */

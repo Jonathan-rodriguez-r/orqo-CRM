@@ -3,8 +3,8 @@
  * Loaded by SuiteCRM legacy views when the Dawn suite8 theme is active.
  */
 :root {
-  --orqo-ink: #262c40;
-  --orqo-coral: #ec5b4f;
+  --orqo-ink: #2E4038;
+  --orqo-coral: #1A8A55;
   --orqo-teal: #24a99b;
   --orqo-surface: #f7f3ec;
 }
@@ -61,8 +61,8 @@ input[type="submit"].button {
 .btn-primary:hover,
 .button.primary:hover,
 input[type="submit"].button:hover {
-  background-color: #d94f45 !important;
-  border-color: #d94f45 !important;
+  background-color: #176647 !important;
+  border-color: #176647 !important;
 }
 
 .moduleTitle h2,
@@ -184,18 +184,18 @@ body .app-overlay [class*="Rect"] {
   0% {
     opacity: 0.58;
     transform: scale(0.9) rotate(-8deg);
-    filter: drop-shadow(0 0 0 rgba(0, 199, 132, 0));
+    filter: drop-shadow(0 0 0 rgba(26, 138, 85, 0));
   }
 
   50% {
     opacity: 1;
     transform: scale(1.04) rotate(0deg);
-    filter: drop-shadow(0 0 16px rgba(0, 199, 132, 0.28));
+    filter: drop-shadow(0 0 16px rgba(26, 138, 85, 0.28));
   }
 
   100% {
     opacity: 0.58;
     transform: scale(0.9) rotate(8deg);
-    filter: drop-shadow(0 0 0 rgba(0, 199, 132, 0));
+    filter: drop-shadow(0 0 0 rgba(26, 138, 85, 0));
   }
 }
