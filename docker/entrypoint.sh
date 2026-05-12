@@ -1131,8 +1131,9 @@ EOF
     injectColorStyles();
     applyBranding();
 
+    /* Run AFTER Angular finishes its render cycle (rAF fires before it, setTimeout fires after) */
     var observer = new MutationObserver(function () {
-      window.requestAnimationFrame(applyBranding);
+      setTimeout(applyBranding, 50);
     });
 
     observer.observe(document.documentElement, {
@@ -1142,9 +1143,32 @@ EOF
     });
 
     window.addEventListener("hashchange", function () {
-      applyBranding();
+      setTimeout(applyBranding, 50);
       scheduleAboutRefresh();
     });
+
+    /* Re-patch active nav item after any navbar click (Angular sets .active asynchronously) */
+    document.addEventListener('click', function (e) {
+      var el = e.target;
+      for (var i = 0; i < 6 && el && el !== document.body; i++) {
+        if (el.closest && el.closest('.navbar')) {
+          setTimeout(patchActiveNavItem, 50);
+          setTimeout(patchActiveNavItem, 200);
+          setTimeout(patchActiveNavItem, 500);
+          break;
+        }
+        el = el.parentElement;
+      }
+    });
+
+    /* Periodic scan for 30 s to catch SMTP alerts and late-rendered nav states */
+    var scanCount = 0;
+    var scanTimer = setInterval(function () {
+      patchNotificationBanner();
+      patchActiveNavItem();
+      scanCount++;
+      if (scanCount >= 60) { clearInterval(scanTimer); }
+    }, 500);
 
     scheduleAboutRefresh();
   }
@@ -1761,9 +1785,19 @@ reset_admin_password_if_requested() {
 }
 
 seed_demo_data_if_requested() {
-  if [[ "${ORQO_SEED_DEMO_DATA:-0}" != "1" ]]; then
+  local seed_flag="${ORQO_SEED_DEMO_DATA:-0}"
+  seed_flag="${seed_flag%\"}"
+  seed_flag="${seed_flag#\"}"
+  seed_flag="${seed_flag%\'}"
+  seed_flag="${seed_flag#\'}"
+  seed_flag="$(printf '%s' "${seed_flag}" | tr '[:upper:]' '[:lower:]')"
+
+  if [[ "${seed_flag}" != "1" && "${seed_flag}" != "true" && "${seed_flag}" != "yes" && "${seed_flag}" != "on" ]]; then
+    log "Demo seed disabled. Set ORQO_SEED_DEMO_DATA=1 to populate demo data."
     return
   fi
+
+  log "Demo seed enabled by ORQO_SEED_DEMO_DATA."
 
   if ! database_has_suitecrm; then
     log "Demo seed requested but SuiteCRM database is not ready."
@@ -1799,7 +1833,10 @@ seed_demo_data_if_requested() {
     --protocol=TCP \
     "${DB_NAME}" < "${sql_seeder}"; then
     log "SQL demo seed failed. Continuing startup without blocking Apache."
+    return
   fi
+
+  log "SQL demo seed completed. Demo records should now be visible in Accounts, Leads, Opportunities, Quotes and Cases."
 }
 
 main() {
