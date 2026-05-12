@@ -86,7 +86,7 @@ body,
 .navbar .dropdown-menu > li > a,
 .navbar-default .dropdown-menu > li > a,
 .navbar-default .navbar-nav .open .dropdown-menu > li > a {
-  color: #e8f0ec !important;
+  color: #F5F5F2 !important;
 }
 
 /* ── Dropdown hover ── */
@@ -96,8 +96,8 @@ body,
 .navbar-default .dropdown-menu > li > a:focus,
 .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
 .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
-  background-color: #1A8A55 !important;
-  color: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #1A8A55 !important;
 }
 
 /* ── Buttons ── */

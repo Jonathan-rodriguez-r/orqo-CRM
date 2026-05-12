@@ -321,15 +321,15 @@ button[type="submit"]:hover,
 
 .navbar .dropdown-menu > li > a,
 .navbar-default .dropdown-menu > li > a {
-  color: #ffffff !important;
+  color: #F5F5F2 !important;
 }
 
 .navbar .dropdown-menu > li > a:hover,
 .navbar .dropdown-menu > li > a:focus,
 .navbar-default .dropdown-menu > li > a:hover,
 .navbar-default .dropdown-menu > li > a:focus {
-  color: #ffffff !important;
-  background-color: #1A8A55 !important;
+  background-color: #ffffff !important;
+  color: #1A8A55 !important;
 }
 
 .alert,
@@ -770,11 +770,17 @@ EOF
         'body .dropdown-menu li.dropdown-header,',
         'body .navbar-right .dropdown-menu li:first-child a,',
         'body .navbar-right .dropdown-menu li:first-child{',
-          'color:#a8c4b4!important;background-color:#111a13!important;}',
+          'color:#F5F5F2!important;background-color:#2E4038!important;}',
         /* dropdown links */
         'body .navbar .dropdown-menu>li>a,',
         'body .navbar-default .navbar-nav .open .dropdown-menu>li>a,',
-        'body .dropdown-menu>li>a{color:#e8f0ec!important;}',
+        'body .dropdown-menu>li>a{color:#F5F5F2!important;}',
+        /* dropdown hover */
+        'body .navbar .dropdown-menu>li>a:hover,',
+        'body .navbar .dropdown-menu>li>a:focus,',
+        'body .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover,',
+        'body .dropdown-menu>li>a:hover,body .dropdown-menu>li>a:focus{',
+          'background-color:#ffffff!important;color:#1A8A55!important;}',
         /* alert / notification banner */
         'body .alert,body .alert-warning,body .alert-danger,',
         'body .alert-error,body .alert-info,',
@@ -812,8 +818,8 @@ EOF
     document.addEventListener('mouseover', function (e) {
       var link = isInsideDropdown(e.target);
       if (link) {
-        link.style.setProperty('background-color', '#1A8A55', 'important');
-        link.style.setProperty('color', '#ffffff', 'important');
+        link.style.setProperty('background-color', '#ffffff', 'important');
+        link.style.setProperty('color', '#1A8A55', 'important');
       }
     });
 
@@ -821,7 +827,7 @@ EOF
       var link = isInsideDropdown(e.target);
       if (link) {
         link.style.removeProperty('background-color');
-        link.style.setProperty('color', '#e8f0ec', 'important');
+        link.style.setProperty('color', '#F5F5F2', 'important');
       }
     });
   }
@@ -1211,15 +1217,15 @@ body, .sugar_body_td, #content, .container-fluid {
 .navbar .dropdown-menu > li > a,
 .navbar-default .dropdown-menu > li > a,
 .navbar-default .navbar-nav .open .dropdown-menu > li > a {
-  color: #e8f0ec !important;
+  color: #F5F5F2 !important;
 }
 .navbar .dropdown-menu > li > a:hover,
 .navbar .dropdown-menu > li > a:focus,
 .navbar-default .dropdown-menu > li > a:hover,
 .navbar-default .dropdown-menu > li > a:focus,
 .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover {
-  background-color: #1A8A55 !important;
-  color: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #1A8A55 !important;
 }
 .btn-primary, .btn-default, .button.primary, input[type="submit"] {
   background-color: #1A8A55 !important;

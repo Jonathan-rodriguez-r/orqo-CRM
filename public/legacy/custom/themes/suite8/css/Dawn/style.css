@@ -101,7 +101,7 @@ header img[src*="company_logo"] {
 
 .navbar .dropdown-menu > li > a,
 .navbar-default .dropdown-menu > li > a {
-  color: #ffffff !important;
+  color: #F5F5F2 !important;
 }
 
 /* hover sobre opciones del dropdown */
@@ -109,8 +109,8 @@ header img[src*="company_logo"] {
 .navbar .dropdown-menu > li > a:focus,
 .navbar-default .dropdown-menu > li > a:hover,
 .navbar-default .dropdown-menu > li > a:focus {
-  color: #ffffff !important;
-  background-color: #1A8A55 !important;
+  background-color: #ffffff !important;
+  color: #1A8A55 !important;
 }
 
 .alert,
