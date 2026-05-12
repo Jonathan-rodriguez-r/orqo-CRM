@@ -282,14 +282,29 @@ EOF
       public/legacy/themes/suite8/tpls/_head.tpl
   fi
 
-  find public/legacy -type f \( -name '*.tpl' -o -name '*.php' -o -name '*.js' -o -name '*.html' \) \
-    -path '*/cache/*' -prune -o -type f -exec sed -i \
+  find public/legacy \( -path '*/cache/*' -o -path '*/custom/*' \) -prune -o \
+    -type f \( -name '*.tpl' -o -name '*.js' -o -name '*.html' \) -exec sed -i \
       -e "s/SuiteCRM/${ORQO_BRAND_NAME}/g" \
       -e "s/Suite CRM/${ORQO_BRAND_NAME}/g" \
       -e "s/SugarCRM/${ORQO_BRAND_NAME}/g" \
       -e "s/Sugar CRM/${ORQO_BRAND_NAME}/g" \
       -e "s/Powered By ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
       -e "s/Powered by ${ORQO_BRAND_NAME}/Powered by Orqo/g" \
+      {} + 2>/dev/null || true
+}
+
+repair_core_branding_side_effects() {
+  if [[ ! -d public/legacy ]]; then
+    return
+  fi
+
+  log "Repairing protected legacy PHP namespaces after branding overlay."
+
+  find public/legacy \( -path '*/custom/*' -o -path '*/cache/*' \) -prune -o \
+    -type f -name '*.php' -exec sed -i \
+      -e 's/Orqo CRM\\/SugarCRM\\/g' \
+      -e 's/Orqo CRM_/SugarCRM_/g' \
+      -e 's/Orqo CRM::/SugarCRM::/g' \
       {} + 2>/dev/null || true
 }
 
@@ -749,6 +764,7 @@ main() {
   apply_orqo_overlay
   install_spanish_language_pack_if_needed
   write_legacy_branding_config
+  repair_core_branding_side_effects
   replace_visible_suitecrm_branding
   run_composer_install
   ensure_permissions
