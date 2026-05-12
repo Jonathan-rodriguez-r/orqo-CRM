@@ -266,10 +266,15 @@ set_env_value() {
   local key="$1"
   local value="$2"
   local file="${3:-.env.local}"
+  local escaped_value
 
   touch "${file}"
+  escaped_value="${value//\\/\\\\}"
+  escaped_value="${escaped_value//&/\\&}"
+  escaped_value="${escaped_value//|/\\|}"
+
   if grep -q "^${key}=" "${file}"; then
-    sed -i "s|^${key}=.*|${key}=${value}|" "${file}"
+    sed -i "s|^${key}=.*|${key}=${escaped_value}|" "${file}"
   else
     printf '%s=%s\n' "${key}" "${value}" >> "${file}"
   fi
@@ -288,7 +293,7 @@ write_runtime_env() {
   set_env_value APP_ENV "${APP_ENV:-prod}"
   set_env_value APP_DEBUG "${APP_DEBUG:-0}"
   set_env_value APP_SECRET "\"${APP_SECRET}\""
-  set_env_value DATABASE_URL "\"mysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?serverVersion=mariadb-10.11&charset=utf8mb4\""
+  set_env_value DATABASE_URL "\"mysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?serverVersion=mariadb-10.11.0&charset=utf8mb4\""
   chmod 660 .env.local
 }
 
